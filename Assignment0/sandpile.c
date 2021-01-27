@@ -42,12 +42,40 @@ void pilefall(int x, int y, int grid[prim][prim]);
  }
 
  void runWorld(int grid[prim][prim]){
+    while(){
+        //add sand in the middle
+        if(grid[11][11]==-1){
+            printf("There is a sink on the center");
+        }
+        grid[11][11]++;
+    }
     
  }
 //recursive
  void pilefall(int x, int y, int grid[prim][prim]){
-     if(grid[x][y]<8){
+    if(grid[x][y]<8){
          //base case
-     }
+         break;
+    }
+     //top left
+    if(x-1>=0){
+        grid[x-1][y]++;
+        if(y-1>=0){
+            grid[x-1][y-1]++;
+        } else if(y+1<=prim){
+            grid[x-1][y+1]++;
+        }
+    } else if(x+1<=prim){
+        grid[x+1][y]++;
+        if(y-1>=0){
+            grid[x+1][y-1]++;
+        } else if(y+1<=prim){
+            grid[x+1][y+1]++;
+        }
+    } else if(y-1>=0){
+        grid[x][y-1]++;
+    } else if(x+1<=prim){
+        grid[x][y+1]++;
+    }
  }
  
