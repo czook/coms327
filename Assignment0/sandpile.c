@@ -3,13 +3,14 @@ const int prim =23;
 void worldGen(int grid[prim][prim]);
 void printWorld(int grid[prim][prim]);
 void runWorld(int grid[prim][prim]);
-void pilefall(int x, int y, int grid[prim][prim]);
+int pilefall(int x, int y, int grid[prim][prim]);
 #include <stdio.h>
  int main(int argc, char *argv[]){
     int grid[prim][prim]; 
     //printf("Debug");
     worldGen(grid);
     printWorld(grid);
+    runWorld(grid);
     return 0;
  }
 //use this method after worldGen
@@ -42,39 +43,52 @@ void pilefall(int x, int y, int grid[prim][prim]);
  }
 
  void runWorld(int grid[prim][prim]){
-    while(){
+     int i=0;
+    while(1){
         //add sand in the middle
-        if(grid[11][11]==-1){
-            printf("There is a sink on the center");
-        }
         grid[11][11]++;
+        pilefall(11,11, grid);
+        i++;
+        if(i>100000){
+            printWorld(grid);
+            i=0;
+        }
+        
     }
     
  }
 //recursive
- void pilefall(int x, int y, int grid[prim][prim]){
+ int pilefall(int x, int y, int grid[prim][prim]){
     if(grid[x][y]<8){
          //base case
-         break;
+         return 0;
     }
      //top left
     if(x-1>=0){
         grid[x-1][y]++;
+        pilefall(x-1, y, grid);
         if(y-1>=0){
             grid[x-1][y-1]++;
+            pilefall(x-1, y, grid);
         } else if(y+1<=prim){
             grid[x-1][y+1]++;
+            pilefall(x-1, y, grid);
         }
     } else if(x+1<=prim){
         grid[x+1][y]++;
+        pilefall(x-1, y, grid);
         if(y-1>=0){
             grid[x+1][y-1]++;
+            pilefall(x-1, y, grid);
         } else if(y+1<=prim){
             grid[x+1][y+1]++;
+            pilefall(x-1, y, grid);
         }
     } else if(y-1>=0){
         grid[x][y-1]++;
+        pilefall(x-1, y, grid);
     } else if(x+1<=prim){
+        pilefall(x-1, y, grid);
         grid[x][y+1]++;
     }
  }
