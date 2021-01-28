@@ -6,21 +6,39 @@ void printWorld(int grid[prim][prim]);
 int pilefall(int x, int y, int grid[prim][prim]);
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
  int main(int argc, char* argv[]){
     int grid[prim][prim];
     worldGen(grid);
-    for (int i = 1; i< argc-1; i++){
-        printf("%d",argc);
-        inputVals(grid, atoi(argv[i]), atoi(argv[i+1]), atoi(argv[i+2]));
-        i+=2;
+    int fps = 1000000;
+    if (argc > 1){
+        if(!strcmp("--fps", argv[1])){
+            fps = atoi(argv[2]);
+        }
     }
+    if(fps == 1000000){
+        for (int i = 1; i< argc-1; i++){
+            printf("%d",argc);
+            inputVals(grid, atoi(argv[i]), atoi(argv[i+1]), atoi(argv[i+2]));
+            i+=2;
+        }
+    } else{
+        for (int i = 3; i< argc-2; i++){
+            printf("%d",argc);
+            inputVals(grid, atoi(argv[i]), atoi(argv[i+1]), atoi(argv[i+2]));
+            i+=2;
+        }
+    }
+    
 
-    //printWorld(grid);
+    printWorld(grid);
     while(1){
         //add sand in the middle
         grid[11][11]++;
         pilefall(11,11, grid);
         printWorld(grid);
+        usleep(1000000/fps); //update framerate
     }
     return 0;
  }
