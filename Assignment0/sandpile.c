@@ -3,16 +3,10 @@ const int prim =23;
 void inputVals(int grid[prim][prim],int x, int y, int h);
 void worldGen(int grid[prim][prim]);
 void printWorld(int grid[prim][prim]);
-void runWorld(int grid[prim][prim]);
 int pilefall(int x, int y, int grid[prim][prim]);
 #include <stdio.h>
 #include <stdlib.h>
  int main(int argc, char* argv[]){
-    //Got line below from: https://flaviocopes.com/c-array-length/
-    printf("%d",argc);
-    int x = atoi(argv[1]);
-    int y = atoi(argv[2]);
-    int h = atoi(argv[3]);
     int grid[prim][prim];
     worldGen(grid);
     for (int i = 1; i< argc-1; i++){
@@ -22,7 +16,12 @@ int pilefall(int x, int y, int grid[prim][prim]);
     }
 
     //printWorld(grid);
-    runWorld(grid);
+    while(1){
+        //add sand in the middle
+        grid[11][11]++;
+        pilefall(11,11, grid);
+        printWorld(grid);
+    }
     return 0;
  }
 //use this method after worldGen
@@ -60,16 +59,6 @@ int pilefall(int x, int y, int grid[prim][prim]);
     printf("\n");
  }
 
- void runWorld(int grid[prim][prim]){
-     int i=0;
-    while(1){
-        //add sand in the middle
-        grid[11][11]++;
-        pilefall(11,11, grid);
-        printWorld(grid);
-    }
-    
- }
 //recursive
  int pilefall(int x, int y, int grid[prim][prim]){
     if(grid[x][y]<=8){
@@ -78,38 +67,53 @@ int pilefall(int x, int y, int grid[prim][prim]);
     }
     grid[x][y]= grid[x][y] - 8;
      //top left
-    if(x-1>=0&&grid[x-1][y]!=-1){
-        
-        grid[x-1][y]++;
-        pilefall(x-1, y, grid);
+    if(x-1>=0){
+        if(grid[x-1][y]!=-1){
+            grid[x-1][y]++;
+            pilefall(x-1, y, grid);
+        }
     }
-    if(y-1>=0&&grid[x-1][y-1]!=-1){
-        grid[x-1][y-1]++;
-        pilefall(x-1, y-1, grid);
+    if(y-1>=0&&x-1>=0){
+        if(grid[x-1][y-1]!=-1){
+            grid[x-1][y-1]++;
+            pilefall(x-1, y-1, grid);
+        }
     }
-    if(y+1<prim&&grid[x-1][y+1]!=-1){
-        grid[x-1][y+1]++;
-        pilefall(x-1, y+1, grid);
+    if(y+1<prim&&x-1>=0){
+        if(grid[x-1][y+1]!=-1){
+            grid[x-1][y+1]++;
+            pilefall(x-1, y+1, grid);
+        }
     }
-    if(x+1<prim&&grid[x+1][y]!=-1){
-        grid[x+1][y]++;
-        pilefall(x+1, y, grid);
+    if(x+1<prim){
+        if(grid[x+1][y]!=-1){
+            grid[x+1][y]++;
+            pilefall(x+1, y, grid);
+        }
     }
-    if(y-1>=0&&grid[x+1][y-1]!=-1){
-        grid[x+1][y-1]++;
-        pilefall(x+1, y-1, grid);
+    if(y-1>=0&&x+1<prim){
+        if(grid[x+1][y-1]!=-1){
+            grid[x+1][y-1]++;
+            pilefall(x+1, y-1, grid);
+        }
     }
-    if(y+1<prim&&grid[x+1][y+1]!=-1){
-        grid[x+1][y+1]++;
-        pilefall(x+1, y+1, grid);
+    if(y+1<prim&&x+1<prim){
+        if(grid[x+1][y+1]!=-1){
+            grid[x+1][y+1]++;
+            pilefall(x+1, y+1, grid);
+        }
     }
-    if(y-1>=0&&grid[x][y-1]!=-1){
-        grid[x][y-1]++;
-        pilefall(x, y-1, grid);
+    if(y-1>=0){
+        if(grid[x][y-1]!=-1){
+            grid[x][y-1]++;
+            pilefall(x, y-1, grid);
+        }
     }
-    if(x+1<prim&&grid[x][y+1]!=-1){
-        grid[x][y+1]++;
-        pilefall(x, y+1, grid);
+    if(y+1<prim){
+        if(grid[x][y+1]!=-1){
+            grid[x][y+1]++;
+            pilefall(x, y+1, grid);
+        }
     }
     if(grid[x][y] > 8){
         pilefall(x,y,grid);
