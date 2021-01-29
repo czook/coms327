@@ -4,7 +4,7 @@ const int prim =23;
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <sandpile.h>
+#include "sandpile.h"
  int main(int argc, char* argv[]){
     int grid[prim][prim];
     worldGen(grid);
