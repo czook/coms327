@@ -1,13 +1,10 @@
 // Based off -- https://en.wikipedia.org/wiki/Abelian_sandpile_model
 const int prim =23;
-void inputVals(int grid[prim][prim],int x, int y, int h);
-void worldGen(int grid[prim][prim]);
-void printWorld(int grid[prim][prim]);
-int pilefall(int x, int y, int grid[prim][prim]);
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sandpile.h>
  int main(int argc, char* argv[]){
     int grid[prim][prim];
     worldGen(grid);
