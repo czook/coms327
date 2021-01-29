@@ -1,10 +1,9 @@
-// Based off -- https://en.wikipedia.org/wiki/Abelian_sandpile_model
-const int prim =23;
-void inputVals(int grid[prim][prim],int x, int y, int h);
-void worldGen(int grid[prim][prim]);
-void printWorld(int grid[prim][prim]);
+
+#define prim 23
+#define RED "\x1B[31m" 
 int pilefall(int x, int y, int grid[prim][prim]);
 #include <stdio.h>
+#include <curses.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -12,11 +11,22 @@ int pilefall(int x, int y, int grid[prim][prim]);
     int grid[prim][prim];
     worldGen(grid);
     int fps = 1000000;
+    if(has_colors() == FALSE)
+    {
+                endwin();
+		printf("Your terminal does not support color\n");
+		exit(1);
+    }
+
+    start_color();
+    init_pair(1, COLOR_RED, COLOR_BLACK);
+
     if (argc > 1){
         if(!strcmp("--fps", argv[1])){
             fps = atoi(argv[2]);
         }
     }
+    
     if(fps == 1000000){
         for (int i = 1; i< argc-1; i++){
             printf("%d",argc);
@@ -69,7 +79,7 @@ int pilefall(int x, int y, int grid[prim][prim]);
             if(grid[i][j]==-1){
                 printf("# ");
             }else{
-                printf("%d ", grid[i][j]);
+                printf(RED "%d ", grid[i][j]);
             }
         }
         printf("\n");
