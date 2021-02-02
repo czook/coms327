@@ -9,6 +9,7 @@ const int prim =23;
     int grid[prim][prim];
     worldGen(grid);
     int fps = 1000000;
+    int isValid = 1;
     if (argc > 1){
         if(!strcmp("--fps", argv[1])){
             fps = atoi(argv[2]);
@@ -16,21 +17,28 @@ const int prim =23;
     }
     if(fps == 1000000){
         for (int i = 1; i< argc-1; i++){
-            printf("%d",argc);
+            //printf("%d",argc);
+            if (atoi(argv[i])==11&&atoi(argv[i+1])==11 && atoi(argv[i+2])==-1){
+                printf("A sink at the center is invalid");
+                isValid = 0;
+            }
             inputVals(grid, atoi(argv[i]), atoi(argv[i+1]), atoi(argv[i+2]));
             i+=2;
         }
     } else{
         for (int i = 3; i< argc-2; i++){
-            printf("%d",argc);
+            //printf("%d",argc);
+            if (atoi(argv[i])==11&&atoi(argv[i+1])==11 && atoi(argv[i+2])==-1){
+                printf("A sink at the center is invalid");
+                isValid = 0;
+            }
             inputVals(grid, atoi(argv[i]), atoi(argv[i+1]), atoi(argv[i+2]));
             i+=2;
         }
     }
     
 
-    printWorld(grid);
-    while(1){
+    while(isValid){
         //add sand in the middle
         grid[11][11]++;
         pilefall(11,11, grid);
