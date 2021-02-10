@@ -21,7 +21,7 @@ void genBorder();
 void printboard();
 void roomGen();
 int overlapChecker(int roomIndex);
-void connect(int num);
+void hallways(int num);
 void insertLeft(int *x, int *y);
 void insertRight(int *x, int *y);
 void insertUp(int *x, int *y);
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     genBorder();
     roomGen();
     for(int i =0; i<6; i++){
-        connect(i);
+        hallways(i);
     }
     printboard();
    
@@ -126,69 +126,66 @@ int overlapChecker(int roomIndex) {
     }
     return 1;
 }
-void connect(int num){
+void hallways(int num){
   int i;
-  double distance = 10000.0;
-  struct Room closest;
-  closest.x = rooms[num].x;
-  closest.y = rooms[num].y;
-  //Cycles through already connected rooms and finds closest
+  double slope = 1000;
+  struct Room next;
+  next.x = rooms[num].x;
+  next.y = rooms[num].y;
+  //Cycles through already hallwaysed rooms and finds next
   for(i = 0; i < num; i++){
-    int xDis = abs(rooms[num].x - rooms[i].x);
-    int yDis = abs(rooms[num].x - rooms[i].y);
-    //Calculates distance between two rooms, sets new closest point if distance is less
-    if(sqrt(xDis * xDis + yDis * yDis) < distance){
-      distance = sqrt(xDis * xDis + yDis * yDis);
-      closest.x = rooms[i].x;
-      closest.y = rooms[i].y;
+    int dx = abs(rooms[num].x - rooms[i].x);
+    int dy = abs(rooms[num].x - rooms[i].y);
+    //Calculates slope between two rooms, sets new next point if slope is less
+    if(sqrt(dx * dx + dy * dy) < slope){
+      slope = sqrt(dx * dx + dy * dy);
+      next.x = rooms[i].x;
+      next.y = rooms[i].y;
     }
   }
 
-  int xcpy = rooms[num].x;
-  int ycpy = rooms[num].y;
-  while(xcpy != closest.x || ycpy != closest.y){
+  while(rooms[num].x != next.x || rooms[num].y != next.y){
     
     //Right
-    if(xcpy < closest.x)
-      insertRight(&xcpy, &ycpy);
+    if(rooms[num].x < next.x)
+      insertRight(&rooms[num].x, &rooms[num].y);
     //Left
-    else if(xcpy > closest.x)
-      insertLeft(&xcpy, &ycpy);
+    else if(rooms[num].x > next.x)
+      insertLeft(&rooms[num].x, &rooms[num].y);
     //Down
-    else if(ycpy < closest.y)
-      insertDown(&xcpy, &ycpy);
+    else if(rooms[num].y < next.y)
+      insertDown(&rooms[num].x, &rooms[num].y);
     //Up
-    else if(ycpy> closest.y)
-      insertUp(&xcpy, &ycpy);
+    else if(rooms[num].y> next.y)
+      insertUp(&rooms[num].x, &rooms[num].y);
     //Down and Right
-    else if(xcpy < closest.x && ycpy < closest.y){
-      if(playArea[ycpy][xcpy+1].hardness < playArea[ycpy+1][xcpy].hardness)
-        insertRight(&xcpy, &ycpy);
+    else if(rooms[num].x < next.x && rooms[num].y < next.y){
+      if(playArea[rooms[num].y][rooms[num].x+1].hardness < playArea[rooms[num].y+1][rooms[num].x].hardness)
+        insertRight(&rooms[num].x, &rooms[num].y);
       else
-        insertDown(&xcpy, &ycpy);
+        insertDown(&rooms[num].x, &rooms[num].y);
     }
     //Down and left
-    else if(xcpy > closest.x && ycpy < closest.y){
-      if(playArea[ycpy][xcpy-1].hardness < playArea[ycpy+1][xcpy].hardness)
-        insertLeft(&xcpy, &ycpy);
+    else if(rooms[num].x > next.x && rooms[num].y < next.y){
+      if(playArea[rooms[num].y][rooms[num].x-1].hardness < playArea[rooms[num].y+1][rooms[num].x].hardness)
+        insertLeft(&rooms[num].x, &rooms[num].y);
       else
-        insertDown(&xcpy, &ycpy);
+        insertDown(&rooms[num].x, &rooms[num].y);
     }
     //Up and left
-    else if(xcpy < closest.x && ycpy > closest.y){
-      if(playArea[ycpy][xcpy+1].hardness < playArea[ycpy-1][xcpy].hardness)
-        insertRight(&xcpy, &ycpy);
+    else if(rooms[num].x < next.x && rooms[num].y > next.y){
+      if(playArea[rooms[num].y][rooms[num].x+1].hardness < playArea[rooms[num].y-1][rooms[num].x].hardness)
+        insertRight(&rooms[num].x, &rooms[num].y);
       else
-        insertUp(&xcpy, &ycpy);
+        insertUp(&rooms[num].x, &rooms[num].y);
     }
     //Right and Up
-    else if(xcpy > closest.x && ycpy > closest.y){
-      if(playArea[ycpy][xcpy-1].hardness < playArea[ycpy-1][xcpy].hardness)
-        insertLeft(&xcpy, &ycpy);
+    else if(rooms[num].x > next.x && rooms[num].y > next.y){
+      if(playArea[rooms[num].y][rooms[num].x-1].hardness < playArea[rooms[num].y-1][rooms[num].x].hardness)
+        insertLeft(&rooms[num].x, &rooms[num].y);
       else
-	insertUp(&xcpy, &ycpy);
+	insertUp(&rooms[num].x, &rooms[num].y);
     }
-    
   }
      
 }
