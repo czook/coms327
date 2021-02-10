@@ -117,8 +117,8 @@ void roomGen() {
 }
 
 int overlapChecker(int roomIndex) { 
-    for (int x = rooms[roomIndex].x; x < rooms[roomIndex].x + rooms[roomIndex].width; x++) {
-        for (int y = rooms[roomIndex].y; y < rooms[roomIndex].y + rooms[roomIndex].height; y++) {
+    for (int x = rooms[roomIndex].x-1; x < rooms[roomIndex].x + rooms[roomIndex].width+1; x++) {
+        for (int y = rooms[roomIndex].y-1; y < rooms[roomIndex].y + rooms[roomIndex].height+1; y++) {
             if (playArea[y][x].matChar == '.') {
                 return 0;
             }
