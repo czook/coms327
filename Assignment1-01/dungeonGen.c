@@ -1,34 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h> 
 
 struct Room {
     int width;
     int height;
     int x;
     int y;
+    int xEnd;
+    int yEnd;
 };
 
 void genBorder();
 void printBoard();
+void roomGen();
 
 struct Room rooms[6];
 char board[21][80];
 
 
 int main(int argc, char* argv[]) {
-    
-    rooms[0].width = 5;
-    rooms[0].height = 5;
-    rooms[0].x = 10;
-    rooms[0].y = 10;
     genBorder();
-    for (int i = rooms[0].x; i <= rooms[0].width + rooms[0].x; i++) {
-        for (int j = rooms[0].y; j <= rooms[0].height + rooms[0].y; j++) {
-            board[i][j] = '.';
-        }
-
-    }
+    roomGen();
     printBoard();
+    
    
 }
 
@@ -57,5 +52,24 @@ void printBoard() {
             printf("%c", board[i][j]);
         }
         printf("\n");
+    }
+}
+
+void roomGen() {
+    srand(time(NULL));
+    for (int i = 0; i <= 6; i++) {
+        rooms[i].width = rand() % (6 - 4 + 1) + 4; ;
+        rooms[i].height = rand() % (5 - 3 + 1) + 3; ;
+        rooms[i].x = rand() % (70 - 1 + 1) + 1; ;
+        rooms[i].y = rand() % (11 - 1 + 1) + 1; ;
+        rooms[i].xEnd = rooms[i].x + rooms[i].width;
+        rooms[i].yEnd = rooms[i].y + rooms[i].height;
+        
+        for (int j = rooms[i].y; j < rooms[i].yEnd; j++) {
+            for (int k = rooms[i].x; k < rooms[i].xEnd; k++) {
+                
+                board[j][k] = '.';
+            }
+        }
     }
 }
