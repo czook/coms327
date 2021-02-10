@@ -63,8 +63,8 @@ void roomGen() {
     for (int i = 0; i <= 6; i++) { //iterates through rooms in rooms array and initializes attributes
         rooms[i].width = rand() % (6 - 4 + 1) + 4; ; //formula is rand() % (upperBound - lowerBound + 1) + lowerBound
         rooms[i].height = rand() % (5 - 3 + 1) + 3; ;
-        rooms[i].x = rand() % (70 - 1 + 1) + 1; ;
-        rooms[i].y = rand() % (11 - 1 + 1) + 1; ;
+        rooms[i].x = rand() % (70) + 1; ;
+        rooms[i].y = rand() % (11) + 1; ;
         rooms[i].xEnd = rooms[i].x + rooms[i].width;
         rooms[i].yEnd = rooms[i].y + rooms[i].height;
         

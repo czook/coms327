@@ -1,4 +1,4 @@
-all: sandpile.c sandpile.h
+all: dungeonGen.c
 	gcc dungeonGen.c -o dungeonGen
 clean:
 	rm dungeonGen
