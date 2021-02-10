@@ -15,6 +15,7 @@ struct Room {
 void genBorder();
 void printBoard();
 void roomGen();
+int overlapChecker(int roomIndex);
 
 //array to hold all room objects so they can be accessed
 struct Room rooms[6];
@@ -67,25 +68,28 @@ void roomGen() {
         rooms[i].y = rand() % (11) + 1; ;
         rooms[i].xEnd = rooms[i].x + rooms[i].width;
         rooms[i].yEnd = rooms[i].y + rooms[i].height;
-        int ready = 1;
-        for (int j = rooms[i].y; j< rooms[i].yEnd; j++){
-            for (int k = rooms[i].x; k < rooms[i].xEnd; k++) {
-                    if(board[j][k] == '.' || board[j-1][k] == '.' || board[j+1][k] == '.' || board[j+1][k+1] == '.' || board[j-1][k+1] == '.' || board[j+1][k-1] == '.' || board[j-1][k-1] == '.' || board[j-1][k] == '.' || board[j][k-1] == '.'){
-                        ready = 0;
-                    }
-                    
-                }
-        }
-        if(ready){
-            for (int j = rooms[i].y; j < rooms[i].yEnd; j++) { //places periods on board array for room locations
-                for (int k = rooms[i].x; k < rooms[i].xEnd; k++) {
-                    
-                    board[j][k] = '.';
-                }
-            }
-        } else{
+        if (overlapChecker(i) == 0) {
             i--;
+            continue;
+        }
+        
+        for (int j = rooms[i].y; j < rooms[i].yEnd; j++) { //places periods on board array for room locations
+            for (int k = rooms[i].x; k < rooms[i].xEnd; k++) {
+                board[j][k] = '.';
+                
+            }
         }
         
     }
+}
+
+int overlapChecker(int roomIndex) { 
+    for (int x = rooms[roomIndex].x; x < rooms[roomIndex].x + rooms[roomIndex].width; x++) {
+        for (int y = rooms[roomIndex].y; y < rooms[roomIndex].y + rooms[roomIndex].height; y++) {
+            if (board[y][x] == '.') {
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
