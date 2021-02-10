@@ -67,12 +67,25 @@ void roomGen() {
         rooms[i].y = rand() % (11) + 1; ;
         rooms[i].xEnd = rooms[i].x + rooms[i].width;
         rooms[i].yEnd = rooms[i].y + rooms[i].height;
-        
-        for (int j = rooms[i].y; j < rooms[i].yEnd; j++) { //places periods on board array for room locations
+        int ready = 1;
+        for (int j = rooms[i].y; j< rooms[i].yEnd; j++){
             for (int k = rooms[i].x; k < rooms[i].xEnd; k++) {
-                
-                board[j][k] = '.';
-            }
+                    if(board[j][k] == '.' || board[j-1][k] == '.' || board[j+1][k] == '.' || board[j+1][k+1] == '.' || board[j-1][k+1] == '.' || board[j+1][k-1] == '.' || board[j-1][k-1] == '.' || board[j-1][k] == '.' || board[j][k-1] == '.'){
+                        ready = 0;
+                    }
+                    
+                }
         }
+        if(ready){
+            for (int j = rooms[i].y; j < rooms[i].yEnd; j++) { //places periods on board array for room locations
+                for (int k = rooms[i].x; k < rooms[i].xEnd; k++) {
+                    
+                    board[j][k] = '.';
+                }
+            }
+        } else{
+            i--;
+        }
+        
     }
 }
