@@ -27,11 +27,14 @@ void insertRight(int *x, int *y);
 void insertUp(int *x, int *y);
 void insertDown(int *x, int *y);
 void hardnessGen();
+void placeStaircase();
 
 //array to hold all room objects so they can be accessed
 struct Room rooms[6];
 //2D array of the matChars of the game screen
 struct Grid playArea[21][80];
+//counts floor tiles
+int countTiles = 0;
 
 
 
@@ -42,8 +45,8 @@ int main(int argc, char* argv[]) {
     for(int i =0; i<6; i++){
         hallways(i);
     }
+    placeStaircase();
     printboard();
-   
 }
 //generates border and initializes matChar with spaces
 void genBorder() {
@@ -93,6 +96,7 @@ void printboard() {
 }
 //generates rooms
 void roomGen() {
+    
     srand(time(NULL));
     for (int i = 0; i <= 6; i++) { //iterates through rooms in rooms array and initializes attributes
         rooms[i].width = rand() % (6 - 4 + 1) + 4; ; //formula is rand() % (upperBound - lowerBound + 1) + lowerBound
@@ -109,6 +113,7 @@ void roomGen() {
         for (int j = rooms[i].y; j < rooms[i].yEnd; j++) { //places periods on matChar array for room locations
             for (int k = rooms[i].x; k < rooms[i].xEnd; k++) {
                 playArea[j][k].matChar = '.';
+                countTiles++;
                 
             }
         }
@@ -128,15 +133,13 @@ int overlapChecker(int roomIndex) {
 }
 void hallways(int num){
   int i;
-  double slope = 1000;
+  double slope = 1000.0;
   struct Room next;
   next.x = rooms[num].x;
   next.y = rooms[num].y;
-  //Cycles through already hallwaysed rooms and finds next
   for(i = 0; i < num; i++){
     int dx = abs(rooms[num].x - rooms[i].x);
     int dy = abs(rooms[num].x - rooms[i].y);
-    //Calculates slope between two rooms, sets new next point if slope is less
     if(sqrt(dx * dx + dy * dy) < slope){
       slope = sqrt(dx * dx + dy * dy);
       next.x = rooms[i].x;
@@ -220,4 +223,26 @@ void insertDown(int *x, int *y){
     playArea[*y][*x].matChar = '#';
     playArea[*y][*x].hardness = 0;
   }
+}
+
+void placeStaircase(){
+    srand(time(NULL));
+    int count = 0;
+    int upCount = rand() % countTiles + 1;
+    int downCount = rand() % countTiles +1;
+    while (upCount == downCount){
+        int downCount = rand() % countTiles +1;
+    }
+    for(int i = 0; i<21; i++){
+        for(int j = 0; j<80; j++){
+            if(playArea[i][j].matChar == '.'){
+                count++;
+                if (count == upCount){
+                    playArea[i][j].matChar = '<';
+                } else if(count == downCount){
+                    playArea[i][j].matChar = '>';
+                }
+            }
+        }
+    }
 }
