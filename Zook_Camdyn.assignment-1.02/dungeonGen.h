@@ -11,6 +11,18 @@ typedef struct Grid{
     int hardness;
     char matChar;
 }Grid;
+typedef struct binary{
+    char file_type[12];
+    uint32_t version;
+    uint32_t size;
+    uint8_t xPC;
+    uint8_t yPC;
+    uint8_t hardness[21][80];
+    uint16_t r;
+    uint8_t rPos[r][4];
+    uint16_t upStairs;
+    uint16_t downStairs;
+}binary;
 
 void genBorder();
 void printboard();
@@ -30,3 +42,5 @@ struct Room rooms[6];
 struct Grid playArea[21][80];
 //counts floor tiles
 int countTiles = 0;
+//for reading binaries
+struct binary bin;

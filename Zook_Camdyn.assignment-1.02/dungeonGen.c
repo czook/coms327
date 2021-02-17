@@ -60,7 +60,18 @@ void readFile(char * path){
     printf("Could not open FILE %s", path);
     exit(1);
   }
-  
+  fread(bin.file_type, 12, 1, f);
+  fread(bin.version, 4, 1, f);
+  fread(bin.size, 4, 1, f);
+  fread(bin.xPC, 1, 1, f);
+  fread(bin.yPC, 1, 1, f);
+  //reads the hardness from the file
+  char * tempHardness = malloc((sizeof(bin.hardness) * sizeof(char));
+  fread(tempHardness, 1680, 1, f);
+  fread(bin.r, 2 ,1 , f);
+  bin.rPos = malloc(bin.r * 4 * sizeof(uint8_t));
+
+
 }
 //generates border and initializes matChar with spaces
 void genBorder()
