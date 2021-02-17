@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
       return 0;
     }
   }
+  readFile(path);
 
 
   hardnessGen();
@@ -42,6 +43,24 @@ int main(int argc, char *argv[])
   }
   placeStaircase();
   printboard();
+}
+
+int load(FILE * file){
+
+}
+
+int save(FILE * file){
+
+}
+
+void readFile(char * path){
+  FILE * f;
+  f = fopen(path, "rb+");
+  if(f = NULL){
+    printf("Could not open FILE %s", path);
+    exit(1);
+  }
+  
 }
 //generates border and initializes matChar with spaces
 void genBorder()
