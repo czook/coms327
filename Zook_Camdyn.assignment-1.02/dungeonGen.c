@@ -4,8 +4,35 @@
 #include <math.h>
 #include "dungeonGen.h"
 
+//TODO
+int load();
+int save();
+void readFile();
+
+
 int main(int argc, char *argv[])
 {
+  //creating path dir
+  char * path;
+  char * home = getenv("HOME");
+  char * dungeonPath = "/.rlg327/dungeons";
+  path = malloc((sizeof(home) + sizeof(dungeonPath)+1) * sizeof(char));
+  sprintf(path, "%s%s", home, dungeonPath);
+  //reading the arguments
+  int save = 0;
+  int load = 0;
+  for (int i = 0; i < argc; i++) {
+    if (strcmp(argv[1], "--s") == 0) {
+      save = 1;
+    } else if (strcmp(argv[1], "--l") == 0) {
+      load = 1;
+    } else {
+      showUsage(argv[0]);
+      return 0;
+    }
+  }
+
+
   hardnessGen();
   genBorder();
   roomGen();
