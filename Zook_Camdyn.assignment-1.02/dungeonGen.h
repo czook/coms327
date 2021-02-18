@@ -40,7 +40,7 @@ void insertUp(int *x, int *y);
 void insertDown(int *x, int *y);
 void hardnessGen();
 void placeStaircase();
-int save(FILE * file, char* path);
+void saveFile(char * path);
 void readFile(char * path);
 
 

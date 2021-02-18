@@ -1,35 +1,48 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
 #include <endian.h>
+#include <sys/stat.h>
 #include "dungeonGen.h"
 
 int main(int argc, char *argv[])
 {
   //creating path dir
   char * path;
-  char * home = getenv("HOME");
-  char * dungeonPath = "/.rlg327/dungeons";
-  path = malloc((sizeof(home) + sizeof(dungeonPath)+1) * sizeof(char));
-  sprintf(path, "%s%s", home, dungeonPath);
+  //For Windows
+  char * home = getenv("HOMEPATH");
+  char * dungeonPath = "\\.rlg327\\";
+  char * dungeon = "dungeon";
+  
+  
   //reading the arguments
   int save = 0;
   int load = 0;
   for (int i = 0; i < argc; i++) {
-    if (strcmp(argv[1], "--save") == 0) {
+    if (strcmp(argv[i], "--save") == 0) {
       save = 1;
-    } else if (strcmp(argv[1], "--load") == 0) {
+    } else if (strcmp(argv[i], "--load") == 0) {
       load = 1;
-    } else {
-      printf("There are no arguments");
+    } else if (argc == 1) {
+      printf("There are no arguments\n");
       return 0;
     }
+    if ((save == 1 || load == 1) && (strcmp(argv[i-1], "--load") == 0 || strcmp(argv[i-1], "--save") == 0)){
+      dungeon = malloc((sizeof(argv[i])+1) * sizeof(char));
+      dungeon = argv[i];
+    }
   }
-  readFile(path);
-
-
+  path = malloc((sizeof(home) + sizeof(dungeonPath) * sizeof(dungeon)+1) * sizeof(char));
+  sprintf(path, "%s%s%s", home, dungeonPath, dungeon);
+  printf("%s\n", path);
+  if(load == 1){
+    readFile(path);
+  } else if(save == 1){
+    saveFile(path);
+  }
   hardnessGen();
   genBorder();
   roomGen();
@@ -39,20 +52,24 @@ int main(int argc, char *argv[])
   }
   placeStaircase();
   printboard();
+  return 0;
 }
 
-int save(FILE * file, char* path){
-  fopen(path, "wb+");
-  if(file == NULL) {
+void saveFile(char * path){
+  FILE * f;
+  f = fopen(path, "wb");
+  if(f == NULL) {
 		fprintf(stderr, "FILE ERROR: Cannot write dungeon at %s\n", path);
-        exit(1);
+    exit(1);
 	}
 }
 
 void readFile(char * path){
   FILE * f;
-  f = fopen(path, "rb+");
-  if(f = NULL){
+  f = fopen(path, "rb");
+  fprintf(f, "test");
+  fclose(f);
+  if(f == NULL){
     printf("Could not open FILE %s", path);
     exit(1);
   }
@@ -62,9 +79,7 @@ void readFile(char * path){
   fread(&bin.size, 4, 1, f);
   bin.size = htobe32(bin.size);
   fread(&bin.xPC, 1, 1, f);
-  bin.xPC = htobe8(bin.xPC);
   fread(&bin.yPC, 1, 1, f);
-  bin.yPC = htobe8(bin.yPC);
   //reads the hardness from the file
   //char * tempHardness = malloc((sizeof(bin.hardness) * sizeof(char)));
   //fread(tempHardness, 1680, 1, f);
@@ -73,7 +88,6 @@ void readFile(char * path){
     for (int j = 0; j < 80; j++)
     {
       fread(&bin.hardness[i][j], 1, 1, f);
-      bin.hardness[i][j] = htobe8(bin.hardness[i][j]);
     }
   }
   fread(&bin.r, 2 ,1 , f);
@@ -83,7 +97,6 @@ void readFile(char * path){
   for(int j = 0; j < bin.r; j++){
     for(int i = 0; i < 4; i++){
       fread(bin.rPos+i*j+4, 1, 1, f);
-      *(bin.rPos + i * (j+4)) = htobe8(*(bin.rPos + i * (j+4)));
     }
   }
   fread(&bin.numUpStairs, 1, 1, f);
@@ -92,9 +105,7 @@ void readFile(char * path){
   bin.xUpStairs = tempUpStairs;
   for(int i = 0; i < bin.numUpStairs; i++){
     fread(&bin.xUpStairs[i], 1, 1, f);
-    bin.xUpStairs = htobe8(bin.xUpStairs);
     fread(&bin.yUpStairs[i], 1, 1, f);
-    bin.yUpStairs = htobe8(bin.yUpStairs);
   }
   fread(&bin.numDownStairs, 1, 1, f);
   bin.numDownStairs = htobe16(bin.numDownStairs);
@@ -102,9 +113,7 @@ void readFile(char * path){
   bin.xDownStairs = tempDownStairs;
   for(int i = 0; i < bin.numDownStairs; i++){
     fread(&bin.xDownStairs[i], 1, 1, f);
-    bin.xDownStairs = htobe8(bin.xDownStairs);
     fread(&bin.yDownStairs[i], 1, 1, f);
-    bin.yDownStairs = htobe8(bin.yDownStairs);
   }
   fclose(f);
 
@@ -171,7 +180,7 @@ void printboard()
 //generates rooms
 void roomGen()
 {
-  rooms[6];
+  
   srand(time(NULL));
   for (int i = 0; i <= 6; i++)
   { //iterates through rooms in rooms array and initializes attributes
