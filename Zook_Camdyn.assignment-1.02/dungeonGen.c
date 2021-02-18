@@ -1,14 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <math.h>
+#include <endian.h>
 #include "dungeonGen.h"
-
-//TODO
-int load();
-int save();
-void readFile();
-
 
 int main(int argc, char *argv[])
 {
@@ -22,12 +18,12 @@ int main(int argc, char *argv[])
   int save = 0;
   int load = 0;
   for (int i = 0; i < argc; i++) {
-    if (strcmp(argv[1], "--s") == 0) {
+    if (strcmp(argv[1], "--save") == 0) {
       save = 1;
-    } else if (strcmp(argv[1], "--l") == 0) {
+    } else if (strcmp(argv[1], "--load") == 0) {
       load = 1;
     } else {
-      showUsage(argv[0]);
+      printf("There are no arguments");
       return 0;
     }
   }
@@ -61,16 +57,36 @@ void readFile(char * path){
     exit(1);
   }
   fread(bin.file_type, 12, 1, f);
-  fread(bin.version, 4, 1, f);
-  fread(bin.size, 4, 1, f);
-  fread(bin.xPC, 1, 1, f);
-  fread(bin.yPC, 1, 1, f);
+  fread(&bin.version, 4, 1, f);
+  fread(&bin.size, 4, 1, f);
+  fread(&bin.xPC, 1, 1, f);
+  fread(&bin.yPC, 1, 1, f);
   //reads the hardness from the file
-  char * tempHardness = malloc((sizeof(bin.hardness) * sizeof(char));
+  char * tempHardness = malloc((sizeof(bin.hardness) * sizeof(char)));
   fread(tempHardness, 1680, 1, f);
-  fread(bin.r, 2 ,1 , f);
+  fread(&bin.r, 2 ,1 , f);
   bin.rPos = malloc(bin.r * 4 * sizeof(uint8_t));
-
+  //reading room positions NEEDS TO BE CHECKED
+  for(int j = 0; j < bin.r; j++){
+    for(int i = 0; i < 4; i++){
+      fread(bin.rPos+i*j+4, 1, 1, f);
+    }
+  }
+  fread(&bin.numUpStairs, 1, 1, f);
+  uint8_t tempUpStairs[bin.numUpStairs];
+  bin.xUpStairs = tempUpStairs;
+  for(int i = 0; i < bin.numUpStairs; i++){
+    fread(&bin.xUpStairs[i], 1, 1, f);
+    fread(&bin.yUpStairs[i], 1, 1, f);
+  }
+  fread(&bin.numDownStairs, 1, 1, f);
+  uint8_t tempDownStairs[bin.numDownStairs];
+  bin.xUpStairs = tempDownStairs;
+  for(int i = 0; i < bin.numDownStairs; i++){
+    fread(&bin.xDownStairs[i], 1, 1, f);
+    fread(&bin.yDownStairs[i], 1, 1, f);
+  }
+  fclose(f);
 
 }
 //generates border and initializes matChar with spaces

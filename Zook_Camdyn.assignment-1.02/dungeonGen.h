@@ -18,10 +18,14 @@ typedef struct binary{
     uint8_t xPC;
     uint8_t yPC;
     uint8_t hardness[21][80];
-    uint16_t r;
-    uint8_t rPos[r][4];
-    uint16_t upStairs;
-    uint16_t downStairs;
+    uint16_t r;    
+    uint16_t numUpStairs;
+    uint8_t * xUpStairs;
+    uint8_t * yUpStairs;
+    uint16_t numDownStairs;
+    uint8_t * xDownStairs;
+    uint8_t * yDownStairs;
+    uint8_t * rPos;
 }binary;
 
 void genBorder();
@@ -35,6 +39,10 @@ void insertUp(int *x, int *y);
 void insertDown(int *x, int *y);
 void hardnessGen();
 void placeStaircase();
+int load(FILE * file);
+int save(FILE * file);
+void readFile(char * path);
+
 
 //array to hold all room objects so they can be accessed
 struct Room rooms[6];
