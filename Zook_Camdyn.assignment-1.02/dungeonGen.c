@@ -41,12 +41,12 @@ int main(int argc, char *argv[])
   printboard();
 }
 
-int load(FILE * file){
-
-}
-
-int save(FILE * file){
-
+int save(FILE * file, char* path){
+  fopen(path, "wb+");
+  if(file == NULL) {
+		fprintf(stderr, "FILE ERROR: Cannot write dungeon at %s\n", path);
+        exit(1);
+	}
 }
 
 void readFile(char * path){
