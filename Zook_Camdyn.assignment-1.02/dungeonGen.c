@@ -58,33 +58,53 @@ void readFile(char * path){
   }
   fread(bin.file_type, 12, 1, f);
   fread(&bin.version, 4, 1, f);
+  bin.version = htobe32(bin.version);
   fread(&bin.size, 4, 1, f);
+  bin.size = htobe32(bin.size);
   fread(&bin.xPC, 1, 1, f);
+  bin.xPC = htobe8(bin.xPC);
   fread(&bin.yPC, 1, 1, f);
+  bin.yPC = htobe8(bin.yPC);
   //reads the hardness from the file
-  char * tempHardness = malloc((sizeof(bin.hardness) * sizeof(char)));
-  fread(tempHardness, 1680, 1, f);
+  //char * tempHardness = malloc((sizeof(bin.hardness) * sizeof(char)));
+  //fread(tempHardness, 1680, 1, f);
+  for (int i = 0; i < 21; i++)
+  {
+    for (int j = 0; j < 80; j++)
+    {
+      fread(&bin.hardness[i][j], 1, 1, f);
+      bin.hardness[i][j] = htobe8(bin.hardness[i][j]);
+    }
+  }
   fread(&bin.r, 2 ,1 , f);
+  bin.r = htobe16(bin.r);
   bin.rPos = malloc(bin.r * 4 * sizeof(uint8_t));
   //reading room positions NEEDS TO BE CHECKED
   for(int j = 0; j < bin.r; j++){
     for(int i = 0; i < 4; i++){
       fread(bin.rPos+i*j+4, 1, 1, f);
+      *(bin.rPos + i * (j+4)) = htobe8(*(bin.rPos + i * (j+4)));
     }
   }
   fread(&bin.numUpStairs, 1, 1, f);
+  bin.numUpStairs = htobe16(bin.numUpStairs);
   uint8_t tempUpStairs[bin.numUpStairs];
   bin.xUpStairs = tempUpStairs;
   for(int i = 0; i < bin.numUpStairs; i++){
     fread(&bin.xUpStairs[i], 1, 1, f);
+    bin.xUpStairs = htobe8(bin.xUpStairs);
     fread(&bin.yUpStairs[i], 1, 1, f);
+    bin.yUpStairs = htobe8(bin.yUpStairs);
   }
   fread(&bin.numDownStairs, 1, 1, f);
+  bin.numDownStairs = htobe16(bin.numDownStairs);
   uint8_t tempDownStairs[bin.numDownStairs];
-  bin.xUpStairs = tempDownStairs;
+  bin.xDownStairs = tempDownStairs;
   for(int i = 0; i < bin.numDownStairs; i++){
     fread(&bin.xDownStairs[i], 1, 1, f);
+    bin.xDownStairs = htobe8(bin.xDownStairs);
     fread(&bin.yDownStairs[i], 1, 1, f);
+    bin.yDownStairs = htobe8(bin.yDownStairs);
   }
   fclose(f);
 
@@ -151,7 +171,7 @@ void printboard()
 //generates rooms
 void roomGen()
 {
-
+  rooms[6];
   srand(time(NULL));
   for (int i = 0; i <= 6; i++)
   { //iterates through rooms in rooms array and initializes attributes

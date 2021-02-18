@@ -10,6 +10,7 @@ typedef struct Room {
 typedef struct Grid{
     int hardness;
     char matChar;
+    Room rooms[]; //TODO
 }Grid;
 typedef struct binary{
     char file_type[12];
@@ -39,8 +40,7 @@ void insertUp(int *x, int *y);
 void insertDown(int *x, int *y);
 void hardnessGen();
 void placeStaircase();
-int load(FILE * file);
-int save(FILE * file);
+int save(FILE * file, char* path);
 void readFile(char * path);
 
 
