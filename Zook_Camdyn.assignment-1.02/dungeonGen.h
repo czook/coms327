@@ -19,14 +19,14 @@ typedef struct binary{
     uint8_t xPC;
     uint8_t yPC;
     uint8_t hardness[21][80];
-    uint16_t r;    
+    uint16_t r;
     uint16_t numUpStairs;
     uint8_t * xUpStairs;
     uint8_t * yUpStairs;
     uint16_t numDownStairs;
     uint8_t * xDownStairs;
     uint8_t * yDownStairs;
-    uint8_t * rPos;
+    uint8_t (*rPos)[4];
 }binary;
 
 void genBorder();

@@ -26,15 +26,13 @@ int main(int argc, char *argv[])
       save = 1;
     } else if (strcmp(argv[i], "--load") == 0) {
       load = 1;
-    } else if (argc == 1) {
-      printf("There are no arguments\n");
-      return 0;
     }
     if ((save == 1 || load == 1) && (strcmp(argv[i-1], "--load") == 0 || strcmp(argv[i-1], "--save") == 0)){
       dungeon = malloc((sizeof(argv[i])+1) * sizeof(char));
       dungeon = argv[i];
     }
   }
+  //genBorder();
   path = malloc((sizeof(home) + sizeof(dungeonPath) * sizeof(dungeon)+1) * sizeof(char));
   sprintf(path, "%s%s%s", home, dungeonPath, dungeon);
   printf("%s\n", path);
@@ -43,21 +41,24 @@ int main(int argc, char *argv[])
   } else if(save == 1){
     saveFile(path);
   }
-  hardnessGen();
-  genBorder();
-  roomGen();
-  for (int i = 0; i < 7; i++)
-  {
-    hallways(i);
+  if(load == 0){
+    hardnessGen();
+    genBorder();
+    roomGen();
+    for (int i = 0; i < 7; i++)
+    {
+      hallways(i);
+    }
+    placeStaircase();
   }
-  placeStaircase();
+  
   printboard();
   return 0;
 }
 
 void saveFile(char * path){
   FILE * f;
-  f = fopen(path, "wb");
+  f = fopen(path, "wb+");
   if(f == NULL) {
 		fprintf(stderr, "FILE ERROR: Cannot write dungeon at %s\n", path);
     exit(1);
@@ -66,9 +67,7 @@ void saveFile(char * path){
 
 void readFile(char * path){
   FILE * f;
-  f = fopen(path, "rb");
-  fprintf(f, "test");
-  fclose(f);
+  f = fopen(path, "rb+");
   if(f == NULL){
     printf("Could not open FILE %s", path);
     exit(1);
@@ -83,22 +82,24 @@ void readFile(char * path){
   //reads the hardness from the file
   //char * tempHardness = malloc((sizeof(bin.hardness) * sizeof(char)));
   //fread(tempHardness, 1680, 1, f);
-  for (int i = 0; i < 21; i++)
+  for (int i = 0; i < 19; i++)
   {
     for (int j = 0; j < 80; j++)
     {
-      fread(&bin.hardness[i][j], 1, 1, f);
+      fread(&bin.hardness[i][j], sizeof(uint8_t), 1, f);
     }
   }
   fread(&bin.r, 2 ,1 , f);
   bin.r = htobe16(bin.r);
-  bin.rPos = malloc(bin.r * 4 * sizeof(uint8_t));
+  bin.rPos = (uint8_t(*)[4])malloc(bin.r * 4 * sizeof(uint8_t));
+  uint8_t arr[bin.r][4];
   //reading room positions NEEDS TO BE CHECKED
   for(int j = 0; j < bin.r; j++){
     for(int i = 0; i < 4; i++){
-      fread(bin.rPos+i*j+4, 1, 1, f);
+      fread(&arr[j][i], 1, 1, f);
     }
   }
+  bin.rPos = arr;
   fread(&bin.numUpStairs, 1, 1, f);
   bin.numUpStairs = htobe16(bin.numUpStairs);
   uint8_t tempUpStairs[bin.numUpStairs];
@@ -116,14 +117,26 @@ void readFile(char * path){
     fread(&bin.yDownStairs[i], 1, 1, f);
   }
   fclose(f);
-
+  //using bin info and apply it to the playArea
+  for (int i = 0; i < 21; i++){
+    for (int j = 0; j < 80; j++){
+      playArea[i][j].hardness = bin.hardness[i][j];
+      if (playArea[i][j].hardness == 0){
+        playArea[i][j].matChar = '#';
+      } else{
+        playArea[i][j].matChar = ' ';
+      }
+    }
+  }
+  //place rooms
+  roomGen();
 }
 //generates border and initializes matChar with spaces
 void genBorder()
 {
   for (int i = 0; i < 21; i++)
   {
-    for (int j = 0; j < 80; j++)
+    for (int j = 0; j <= 80; j++)
     {
       if (i == 0)
       {
@@ -151,7 +164,7 @@ void hardnessGen()
 
   //Random hardness for all rock in playArea
   int i, j;
-  for (i = 0; i < 21; i++)
+  for (i = 0; i < 19; i++)
   {
     for (j = 0; j < 80; j++)
     {
@@ -168,7 +181,7 @@ void hardnessGen()
 //prints all charcters on matChar array
 void printboard()
 {
-  for (int i = 0; i < 21; i++)
+  for (int i = 0; i < 19; i++)
   {
     for (int j = 0; j < 80; j++)
     {
@@ -180,20 +193,37 @@ void printboard()
 //generates rooms
 void roomGen()
 {
-  
+  int numRooms = 6;
+  if(bin.r != 0){
+    numRooms = bin.r;
+  }
   srand(time(NULL));
-  for (int i = 0; i <= 6; i++)
+  for (int i = 0; i <= numRooms; i++)
   { //iterates through rooms in rooms array and initializes attributes
-    rooms[i].width = rand() % (6 - 4 + 1) + 4;
-    ; //formula is rand() % (upperBound - lowerBound + 1) + lowerBound
-    rooms[i].height = rand() % (5 - 3 + 1) + 3;
-    ;
-    rooms[i].x = rand() % (70) + 1;
-    ;
-    rooms[i].y = rand() % (11) + 1;
-    ;
-    rooms[i].xEnd = rooms[i].x + rooms[i].width;
-    rooms[i].yEnd = rooms[i].y + rooms[i].height;
+    if(bin.r == 0){
+      rooms[i].width = rand() % (6 - 4 + 1) + 4;
+      ; //formula is rand() % (upperBound - lowerBound + 1) + lowerBound
+      rooms[i].height = rand() % (5 - 3 + 1) + 3;
+      ;
+      rooms[i].x = rand() % (70) + 1;
+      ;
+      rooms[i].y = rand() % (11) + 1;
+      ;
+      rooms[i].xEnd = rooms[i].x + rooms[i].width;
+      rooms[i].yEnd = rooms[i].y + rooms[i].height;
+    } else{
+       rooms[i].width = *(*(bin.rPos+i)+3);
+      ; //formula is rand() % (upperBound - lowerBound + 1) + lowerBound
+      rooms[i].height = *(*(bin.rPos+i)+4);
+      ;
+      rooms[i].x = *(*(bin.rPos+i)+1);
+      ;
+      rooms[i].y = *(*(bin.rPos+i)+2);
+      ;
+      rooms[i].xEnd = rooms[i].x + rooms[i].width;
+      rooms[i].yEnd = rooms[i].y + rooms[i].height;
+    }
+    
     if (overlapChecker(i) == 0)
     {
       i--;
