@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
   //creating path dir
   char * path;
   //For Windows
-  char * home = getenv("HOMEPATH");
-  char * dungeonPath = "\\.rlg327\\";
+  char * home = getenv("HOME");
+  char * dungeonPath = "/.rlg327/";
   char * dungeon = "dungeon";
   
   
@@ -63,6 +63,26 @@ void saveFile(char * path){
 		fprintf(stderr, "FILE ERROR: Cannot write dungeon at %s\n", path);
     exit(1);
 	}
+  fwrite("RLG327-S2021", sizeof(char), 12, f);
+  fwrite("0", sizeof(int), 1, f);
+  int upCount = 0;
+  int downCount = 0;
+  for (int i = 0; i < 19; i++)
+  {
+      for (int j = 0; j < 80; j++)
+      {
+          if (playArea[i][j].matChar == '>') {
+              upCount++;
+          }
+          if (playArea[i][j].matChar == '<') {
+              downCount++;
+          }
+          
+      }
+  }
+  uint32_t fileSize = 12 + 4 + 4 + 2 + 1690 + 2 + htobe16(7) * 4 + 2 + htobe16(upCount) * 2 + htobe16(downCount) * 2;
+  fwrite(fileSize, sizeof(fileSize), 1, f);
+
 }
 
 void readFile(char * path){
@@ -129,7 +149,7 @@ void readFile(char * path){
     }
   }
   //place rooms
-  roomGen();
+  //roomGen();
 }
 //generates border and initializes matChar with spaces
 void genBorder()
