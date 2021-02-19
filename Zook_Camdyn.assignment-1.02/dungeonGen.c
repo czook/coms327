@@ -44,7 +44,8 @@ int main(int argc, char *argv[])
   if(load == 0){
     hardnessGen();
     genBorder();
-    roomGen();
+    uint8_t rooms[6][4];
+    roomGen(rooms);
     for (int i = 0; i < 7; i++)
     {
       hallways(i);
@@ -82,7 +83,7 @@ void readFile(char * path){
   //reads the hardness from the file
   //char * tempHardness = malloc((sizeof(bin.hardness) * sizeof(char)));
   //fread(tempHardness, 1680, 1, f);
-  for (int i = 0; i < 19; i++)
+  for (int i = 0; i < 21; i++)
   {
     for (int j = 0; j < 80; j++)
     {
@@ -91,7 +92,6 @@ void readFile(char * path){
   }
   fread(&bin.r, 2 ,1 , f);
   bin.r = htobe16(bin.r);
-  bin.rPos = (uint8_t(*)[4])malloc(bin.r * 4 * sizeof(uint8_t));
   uint8_t arr[bin.r][4];
   //reading room positions NEEDS TO BE CHECKED
   for(int j = 0; j < bin.r; j++){
@@ -99,7 +99,7 @@ void readFile(char * path){
       fread(&arr[j][i], 1, 1, f);
     }
   }
-  bin.rPos = arr;
+  printf("%d\n", arr[0][0]);
   fread(&bin.numUpStairs, 1, 1, f);
   bin.numUpStairs = htobe16(bin.numUpStairs);
   uint8_t tempUpStairs[bin.numUpStairs];
@@ -129,7 +129,7 @@ void readFile(char * path){
     }
   }
   //place rooms
-  roomGen();
+  //roomGen(arr);
 }
 //generates border and initializes matChar with spaces
 void genBorder()
@@ -191,7 +191,7 @@ void printboard()
   }
 }
 //generates rooms
-void roomGen()
+void roomGen(uint8_t arr[][4])
 {
   int numRooms = 6;
   if(bin.r != 0){
@@ -212,13 +212,13 @@ void roomGen()
       rooms[i].xEnd = rooms[i].x + rooms[i].width;
       rooms[i].yEnd = rooms[i].y + rooms[i].height;
     } else{
-       rooms[i].width = *(*(bin.rPos+i)+3);
+       rooms[i].width = arr[i][2];
       ; //formula is rand() % (upperBound - lowerBound + 1) + lowerBound
-      rooms[i].height = *(*(bin.rPos+i)+4);
+      rooms[i].height = arr[i][3];
       ;
-      rooms[i].x = *(*(bin.rPos+i)+1);
+      rooms[i].x = arr[i][0];;
       ;
-      rooms[i].y = *(*(bin.rPos+i)+2);
+      rooms[i].y = arr[i][1];;
       ;
       rooms[i].xEnd = rooms[i].x + rooms[i].width;
       rooms[i].yEnd = rooms[i].y + rooms[i].height;

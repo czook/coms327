@@ -26,12 +26,11 @@ typedef struct binary{
     uint16_t numDownStairs;
     uint8_t * xDownStairs;
     uint8_t * yDownStairs;
-    uint8_t (*rPos)[4];
 }binary;
 
 void genBorder();
 void printboard();
-void roomGen();
+void roomGen(uint8_t arr[][4]);
 int overlapChecker(int roomIndex);
 void hallways(int num);
 void insertLeft(int *x, int *y);
