@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
   //creating path dir
   char * path;
   //For Windows
-  char * home = getenv("HOME");
-  char * dungeonPath = "/.rlg327/";
+  char * home = getenv("HOMEPATH");
+  char * dungeonPath = "\\.rlg327\\";
   char * dungeon = "dungeon";
   
   
@@ -82,7 +82,7 @@ void saveFile(char * path){
       }
   }
   uint32_t fileSize = 12 + 4 + 4 + 2 + 1690 + 2 + htobe16(7) * 4 + 2 + htobe16(upCount) * 2 + htobe16(downCount) * 2;
-  fwrite(fileSize, sizeof(fileSize), 1, f);
+  fwrite(&fileSize, sizeof(fileSize), 1, f);
 
 }
 
@@ -149,11 +149,7 @@ void readFile(char * path){
     }
   }
   //place rooms
-<<<<<<< HEAD
   //roomGen(arr);
-=======
-  //roomGen();
->>>>>>> 804837f19cf98f956de19c119ff02c2d072d6751
 }
 //generates border and initializes matChar with spaces
 void genBorder()
@@ -188,7 +184,7 @@ void hardnessGen()
 
   //Random hardness for all rock in playArea
   int i, j;
-  for (i = 0; i < 19; i++)
+  for (i = 0; i < 21; i++)
   {
     for (j = 0; j < 80; j++)
     {
@@ -205,7 +201,7 @@ void hardnessGen()
 //prints all charcters on matChar array
 void printboard()
 {
-  for (int i = 0; i < 19; i++)
+  for (int i = 0; i < 21; i++)
   {
     for (int j = 0; j < 80; j++)
     {
