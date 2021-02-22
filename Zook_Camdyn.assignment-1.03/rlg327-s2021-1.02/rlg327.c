@@ -54,7 +54,7 @@ typedef int8_t pair_t[num_dims];
 #define ROOM_MAX_Y             15
 #define SAVE_DIR               ".rlg327"
 #define DUNGEON_SAVE_FILE      "dungeon"
-#define DUNGEON_SAVE_SEMANTIC  "RLG327-" TERM
+#define DUNGEON_SAVE_SEMANTIC  "RLG327-S2021"
 #define DUNGEON_SAVE_VERSION   0U
 
 #define mappair(pair) (d->map[pair[dim_y]][pair[dim_x]])
@@ -1070,13 +1070,13 @@ int read_dungeon(dungeon_t *d, char *file)
       fprintf(stderr, "\"HOME\" is undefined.  Using working directory.\n");
       home = ".";
     }
-
     len = (strlen(home) + strlen(SAVE_DIR) + strlen(DUNGEON_SAVE_FILE) +
            1 /* The NULL terminator */                                 +
            2 /* The slashes */);
 
-    filename = malloc(len * sizeof (*filename));
+    filename = malloc(len * sizeof (*filename) + 3);
     sprintf(filename, "%s/%s/%s", home, SAVE_DIR, DUNGEON_SAVE_FILE);
+
 
     if (!(f = fopen(filename, "r"))) {
       perror(filename);
@@ -1091,12 +1091,16 @@ int read_dungeon(dungeon_t *d, char *file)
 
     free(filename);
   } else {
-    if (!(f = fopen(file, "r"))) {
-      perror(file);
+    home = getenv("HOME");
+    char * newfile = malloc(sizeof(home) * sizeof(SAVE_DIR) * sizeof(file) + 3);
+    sprintf(newfile, "%s/%s/%s", home, SAVE_DIR, file);
+    printf("%s", newfile);
+    if (!(f = fopen(newfile, "r"))) {
+      perror(newfile);
       exit(-1);
     }
-    if (stat(file, &buf)) {
-      perror(file);
+    if (stat(newfile, &buf)) {
+      perror(newfile);
       exit(-1);
     }
   }
