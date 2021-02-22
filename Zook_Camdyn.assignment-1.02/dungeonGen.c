@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
   //reading the arguments
   int save = 0;
   int load = 0;
+  int both = 0;
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "--save") == 0) {
       save = 1;
@@ -28,8 +29,17 @@ int main(int argc, char *argv[])
       load = 1;
     }
     if ((save == 1 || load == 1) && (strcmp(argv[i-1], "--load") == 0 || strcmp(argv[i-1], "--save") == 0)){
-      dungeon = malloc((sizeof(argv[i])+1) * sizeof(char));
-      dungeon = argv[i];
+      if(strcmp(argv[i], "--load")== 0 || strcmp(argv[i], "--save") == 0){
+        if (argv[i+1] == NULL){
+          dungeon = malloc((sizeof(argv[i+1])) * sizeof(char));
+          dungeon = argv[i+1];
+        }
+        dungeon = dungeon;
+      } else{
+        dungeon = malloc((sizeof(argv[i])+1) * sizeof(char));
+        dungeon = argv[i];
+      }
+      
     }
   }
   //genBorder();
@@ -46,13 +56,16 @@ int main(int argc, char *argv[])
     genBorder();
     uint8_t rooms[6][4];
     roomGen(rooms);
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < 6; i++)
     {
       hallways(i);
     }
     placeStaircase();
+    if(both){
+      saveFile(path);
+      readFile(path);
+    }
   }
-  
   printboard();
   return 0;
 }
@@ -61,31 +74,59 @@ void saveFile(char * path){
   FILE * f;
   f = fopen(path, "wb+");
   if(f == NULL) {
-		fprintf(stderr, "FILE ERROR: Cannot write dungeon at %s\n", path);
+        fprintf(stderr, "FILE ERROR: Cannot write dungeon at %s\n", path);
     exit(1);
+    }
+  fseek(f, 0, SEEK_SET);
+	char marker[7];
+	strcpy(marker, "RLG327");
+	fwrite(marker, sizeof(char), 6, f);
+
+	/* write the file version marker */
+	fseek(f, 6, SEEK_SET);
+	uint32_t file_version = 0;
+	uint32_t file_version_be = htobe32(file_version);
+	fwrite(&file_version_be, sizeof(uint32_t), 1, f);
+
+	/* write the size of the file ;; unsure how to properly calculate */
+  //TODO
+	fseek(f, 10, SEEK_SET);
+  //TODO
+ 	uint32_t size = 1693 
+	uint32_t size_be = htobe32(size);
+	fwrite(&size_be, sizeof(uint32_t), 1, file);
+
+	/* row-major dungeon matrix */
+	fseek(file, 14, SEEK_SET);
+	int pos = 14;
+	int i;
+	int j;
+
+	for(i = 0; i < 21; i++) {
+		for(j = 0; j < 80; j++) {
+			fseek(file, pos, SEEK_SET);
+			int8_t h;
+			h = (int8_t)(playArea[i][j].matChar);
+			fwrite(&h, sizeof(int8_t), 1, file);
+			pos++;
+		}
 	}
-  fwrite("RLG327-S2021", sizeof(char), 12, f);
-  fwrite("0", sizeof(int), 1, f);
-  int upCount = 0;
-  int downCount = 0;
-  for (int i = 0; i < 19; i++)
-  {
-      for (int j = 0; j < 80; j++)
-      {
-          if (playArea[i][j].matChar == '>') {
-              upCount++;
-          }
-          if (playArea[i][j].matChar == '<') {
-              downCount++;
-          }
-          
-      }
-  }
-  uint32_t fileSize = 12 + 4 + 4 + 2 + 1690 + 2 + htobe16(7) * 4 + 2 + htobe16(upCount) * 2 + htobe16(downCount) * 2;
-  fwrite(&fileSize, sizeof(fileSize), 1, f);
 
+	//Room writing
+	fseek(f, 1694, SEEK_SET);
+	for(i = 0; i < dungeon->nr; i++) {
+		int8_t x = (int8_t) rooms[i].x;
+		int8_t w = (int8_t) rooms[i].y;
+		int8_t y = (int8_t) rooms[i].width;
+		int8_t h = (int8_t) rooms[i].height;
+
+		fwrite(&x, sizeof(int8_t), 1, f);
+		fwrite(&w, sizeof(int8_t), 1, f);
+		fwrite(&y, sizeof(int8_t), 1, f);
+		fwrite(&h, sizeof(int8_t), 1, f);
+	}
+	fclose(f);
 }
-
 void readFile(char * path){
   FILE * f;
   f = fopen(path, "rb+");
@@ -119,22 +160,23 @@ void readFile(char * path){
       fread(&arr[j][i], 1, 1, f);
     }
   }
-  printf("%d\n", arr[0][0]);
-  fread(&bin.numUpStairs, 1, 1, f);
+  
+  fread(&bin.numUpStairs, 2, 1, f);
   bin.numUpStairs = htobe16(bin.numUpStairs);
   uint8_t tempUpStairs[bin.numUpStairs];
-  bin.xUpStairs = tempUpStairs;
+  uint8_t posUpStairs[bin.numUpStairs][2];
   for(int i = 0; i < bin.numUpStairs; i++){
-    fread(&bin.xUpStairs[i], 1, 1, f);
-    fread(&bin.yUpStairs[i], 1, 1, f);
+    for(int j = 0; j < 2 ; j++){
+      fread(&posUpStairs[i][j], 1, 1, f);
+    }
   }
-  fread(&bin.numDownStairs, 1, 1, f);
+  fread(&bin.numDownStairs, 2, 1, f);
   bin.numDownStairs = htobe16(bin.numDownStairs);
-  uint8_t tempDownStairs[bin.numDownStairs];
-  bin.xDownStairs = tempDownStairs;
+  uint8_t posDownStairs[bin.numUpStairs][2];
   for(int i = 0; i < bin.numDownStairs; i++){
-    fread(&bin.xDownStairs[i], 1, 1, f);
-    fread(&bin.yDownStairs[i], 1, 1, f);
+    for(int j = 0; j < 2 ; j++){
+    fread(&posDownStairs[i][j], sizeof(uint8_t), 1, f);
+    }
   }
   fclose(f);
   //using bin info and apply it to the playArea
@@ -143,11 +185,40 @@ void readFile(char * path){
       playArea[i][j].hardness = bin.hardness[i][j];
       if (playArea[i][j].hardness == 0){
         playArea[i][j].matChar = '#';
+        for(int w = 0; w<bin.r;w++){
+          int width = arr[w][2];
+          int height = arr[w][3];
+          int x = arr[w][0];
+          int y = arr[w][1];
+          int xEnd = x + width;
+          int yEnd = y + height;
+          for(int k = y; k < yEnd; k++){
+            for(int l = x; l < xEnd; l++){
+              if (i == k && j == l){
+                playArea[k][l].matChar = '.';
+              }
+            }
+          }
+        }
+
       } else{
         playArea[i][j].matChar = ' ';
       }
+
     }
   }
+  //upstaircase
+  printf("%d", bin.numUpStairs);
+  for(int i = 0; i<bin.numUpStairs;i++){
+    playArea[posUpStairs[i][1]][posUpStairs[i][0]].matChar = '<';
+  }
+  
+  //downstaircase
+  for(int i = 0; i<bin.numDownStairs;i++){
+    playArea[posDownStairs[i][1]][posDownStairs[i][0]].matChar = '>';
+  }
+  //PlayerCharacter
+  playArea[bin.yPC][bin.xPC].matChar = '@';
   //place rooms
   //roomGen(arr);
 }
@@ -218,7 +289,7 @@ void roomGen(uint8_t arr[][4])
     numRooms = bin.r;
   }
   srand(time(NULL));
-  for (int i = 0; i <= numRooms; i++)
+  for (int i = 0; i < numRooms; i++)
   { //iterates through rooms in rooms array and initializes attributes
     if(bin.r == 0){
       rooms[i].width = rand() % (6 - 4 + 1) + 4;
@@ -232,7 +303,7 @@ void roomGen(uint8_t arr[][4])
       rooms[i].xEnd = rooms[i].x + rooms[i].width;
       rooms[i].yEnd = rooms[i].y + rooms[i].height;
     } else{
-       rooms[i].width = arr[i][2];
+      rooms[i].width = arr[i][2];
       ; //formula is rand() % (upperBound - lowerBound + 1) + lowerBound
       rooms[i].height = arr[i][3];
       ;
