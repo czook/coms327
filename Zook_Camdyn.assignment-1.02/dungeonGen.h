@@ -10,6 +10,7 @@ typedef struct Room {
 typedef struct Grid{
     int hardness;
     char matChar;
+    Room rooms[]; //TODO
 }Grid;
 typedef struct binary{
     char file_type[12];
@@ -19,14 +20,13 @@ typedef struct binary{
     uint8_t yPC;
     uint8_t hardness[21][80];
     uint16_t r;
-    uint8_t rPos[r][4];
-    uint16_t upStairs;
-    uint16_t downStairs;
+    uint16_t numUpStairs;
+    uint16_t numDownStairs;
 }binary;
 
 void genBorder();
 void printboard();
-void roomGen();
+void roomGen(uint8_t arr[][4]);
 int overlapChecker(int roomIndex);
 void hallways(int num);
 void insertLeft(int *x, int *y);
@@ -35,6 +35,9 @@ void insertUp(int *x, int *y);
 void insertDown(int *x, int *y);
 void hardnessGen();
 void placeStaircase();
+void saveFile(char * path);
+void readFile(char * path);
+
 
 //array to hold all room objects so they can be accessed
 struct Room rooms[6];
