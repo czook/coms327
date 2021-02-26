@@ -263,7 +263,7 @@ void dijkstra_tunneling_monsters(dungeon_t *d)
 
 	for (y = 0; y < DUNGEON_Y; y++) {
 		for (x = 0; x < DUNGEON_X; x++) {
-			d->ntmap[y][x] = 0;
+			d->tmap[y][x] = 0;
 		}
 	}
 
@@ -288,7 +288,7 @@ void dijkstra_tunneling_monsters(dungeon_t *d)
 
 	while ((p = heap_remove_min(&h)))
 	{
-		d->ntmap[p->pos[dim_y]][p->pos[dim_x]] = p->cost;
+		d->tmap[p->pos[dim_y]][p->pos[dim_x]] = p->cost;
 		if(( path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].hn) &&
 			(path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].cost > (p->cost + distancepair(p->pos)))){
 				path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].cost = p->cost + distancepair(p->pos);
@@ -389,7 +389,7 @@ void dijkstra_non_tunneling_monsters(dungeon_t *d){
 
 	for (y = 0; y < DUNGEON_Y; y++) {
 		for (x = 0; x < DUNGEON_X; x++) {
-			d->tmap[y][x] = 0;
+			d->ntmap[y][x] = 0;
 		}
 	}
 
@@ -411,7 +411,7 @@ void dijkstra_non_tunneling_monsters(dungeon_t *d){
 
 	while ((p = heap_remove_min(&h)))
 	{
-		d->tmap[p->pos[dim_y]][p->pos[dim_x]] = p->cost;
+		d->ntmap[p->pos[dim_y]][p->pos[dim_x]] = p->cost;
 
 		if(( path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].hn) &&
 			(path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].cost > (p->cost + distancepair(p->pos)))){
@@ -489,11 +489,6 @@ void populate_tunneling_monsters(dungeon_t *d)
 		for (x = 0; x < DUNGEON_X; x++) {
 			switch (mapxy(x,y)) {
 				case ter_wall_immutable:
-					if(y == 0 || y == DUNGEON_Y - 1)
-						putchar('-');
-					else if(x == 0 || x == DUNGEON_X - 1)
-						putchar('|');
-					else
 						putchar(' ');
 					break;
 				default:
@@ -501,8 +496,8 @@ void populate_tunneling_monsters(dungeon_t *d)
 						putchar('@');
 						break;
 					}
-					if(d->ntmap[y][x] != 0){
-						printf("%d", d->ntmap[y][x] % 10);
+					if(d->tmap[y][x] != 0){
+						printf("%d", d->tmap[y][x] % 10);
 						break;
 					}else{
 						putchar(' ');
@@ -520,11 +515,6 @@ void populate_non_tunneling_monsters(dungeon_t *d)
 		for (int x = 0; x < DUNGEON_X; x++) {
 			switch (mapxy(x,y)) {
 				case ter_wall_immutable:
-					if(y == 0 || y == DUNGEON_Y - 1)
-						putchar('-');
-					else if(x == 0 || x == DUNGEON_X - 1)
-						putchar('|');
-					else
 						putchar(' ');
 					break;
 				default:	
@@ -532,8 +522,8 @@ void populate_non_tunneling_monsters(dungeon_t *d)
 						putchar('@');
 						break;
 					}
-					if(d->tmap[y][x] != 0){
-						printf("%d", d->tmap[y][x] % 10);
+					if(d->ntmap[y][x] != 0){
+						printf("%d", d->ntmap[y][x] % 10);
 					}else
 						putchar(' ');
 			}
