@@ -38,6 +38,17 @@ typedef struct corridor_path {
   int32_t cost;
 } corridor_path_t;
 
+typedef struct monster{
+  heap_node_t *hn;
+  uint8_t pos[2];
+  uint8_t next_pos[2];
+  int lastKnown[2];
+  char type;
+  uint8_t speed;
+  int turn;
+  int id;
+}monster_t;
+
 typedef enum dim {
   dim_x,
   dim_y,
@@ -96,6 +107,7 @@ typedef struct dungeon {
   uint8_t hardness[DUNGEON_Y][DUNGEON_X];
   uint32_t ntmap[DUNGEON_Y][DUNGEON_X];
 	uint32_t tmap[DUNGEON_Y][DUNGEON_X];
+  monster_t monster[DUNGEON_Y][DUNGEON_X];
   pair_t pc;
 } dungeon_t;
 
