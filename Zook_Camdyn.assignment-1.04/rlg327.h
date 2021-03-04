@@ -61,6 +61,10 @@ typedef struct npc{
   int prevpos[2];
   char type;
   uint8_t speed;
+  int intelligent;
+  int telepathy;
+  int tunneling;
+  int erratic;
 }npc_t;
 
 typedef struct character{
@@ -68,7 +72,7 @@ typedef struct character{
   union{
     struct pc_t pc;
     struct npc_t npc;
-  }
+  }c;
 }character_t;
 
 typedef enum dim {
