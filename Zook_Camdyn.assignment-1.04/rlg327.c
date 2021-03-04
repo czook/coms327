@@ -134,6 +134,7 @@ typedef struct dungeon {
 	uint32_t tmap[DUNGEON_Y][DUNGEON_X];
   monster_t monster[DUNGEON_Y][DUNGEON_X];
   pair_t pc;
+  int numMonsters;
 } dungeon_t;
 
 
@@ -1613,7 +1614,8 @@ int main(int argc, char *argv[])
    * And the final switch, '--image', allows me to create a dungeon *
    * from a PGM image, so that I was able to create those more      *
    * interesting test dungeons for you.                             */
- 
+  int nummon = 0; //0 if nummon is not specified, 1 if specified
+
  if (argc > 1) {
     for (i = 1, long_arg = 0; i < argc; i++, long_arg = 0) {
       if (argv[i][0] == '-') { /* All switches start with a dash */
@@ -1622,6 +1624,17 @@ int main(int argc, char *argv[])
           long_arg = 1; /* handle long and short args at the same place.  */
         }
         switch (argv[i][1]) {
+        case 'n':
+            if ((!long_arg && argv[i][2]) ||
+                (long_arg && strcmp(argv[i], "-nummon")) ||
+                argc < ++i + 1 /* No more arguments */ ||
+                !sscanf(argv[i], "%d", &d.numMonsters) /* Argument is not an integer */) {
+
+                usage(argv[0]);
+            }
+            d.numMonsters = atoi(argv[i++]);
+            nummon = 1;
+            break;
         case 'r':
           if ((!long_arg && argv[i][2]) ||
               (long_arg && strcmp(argv[i], "-rand")) ||
@@ -1685,7 +1698,9 @@ int main(int argc, char *argv[])
       }
     }
   }
-
+ if (nummon == 0) {
+     d.numMonsters = 13;
+ }
   if (do_seed) {
     /* Allows me to generate more than one dungeon *
      * per second, as opposed to time().           */
