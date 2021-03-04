@@ -1557,7 +1557,6 @@ void usage(char *name)
 
 int main(int argc, char *argv[])
 {
-  printf("boo boo");
   dungeon_t d;
   time_t seed;
   struct timeval tv;
