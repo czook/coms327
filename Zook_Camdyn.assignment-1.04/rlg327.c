@@ -42,12 +42,37 @@ typedef struct monster{
   heap_node_t *hn;
   uint8_t pos[2];
   uint8_t next_pos[2];
-  int lastKnown[2];
+  int prevpos[2];
   char type;
   uint8_t speed;
   int turn;
   int id;
 }monster_t;
+
+typedef struct pc{
+  heap_node_t *hn;
+  uint8_t pos[2];
+  uint8_t next_pos[2];
+  int prevpos[2];
+  uint8_t speed;
+}pc_t;
+
+typedef struct npc{
+  heap_node_t *hn;
+  uint8_t pos[2];
+  uint8_t next_pos[2];
+  int prevpos[2];
+  char type;
+  uint8_t speed;
+}npc_t;
+
+typedef struct character{
+  uint8_t pos[2];
+  union{
+    struct pc_t pc;
+    struct npc_t npc;
+  }
+}character_t;
 
 typedef enum dim {
   dim_x,
