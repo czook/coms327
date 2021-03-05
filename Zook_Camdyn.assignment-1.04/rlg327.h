@@ -39,37 +39,26 @@ typedef struct monster{
   heap_node_t *hn;
   uint8_t pos[2];
   uint8_t next_pos[2];
-  int prevpos[2];
+  int lastKnown[2];
   char type;
   uint8_t speed;
   int turn;
   int id;
 }monster_t;
 
-typedef struct pc{
+typedef struct tunnel {
   heap_node_t *hn;
   uint8_t pos[2];
-  uint8_t next_pos[2];
-  int prevpos[2];
-  uint8_t speed;
-}pc_t;
+  uint8_t from[2];
+  int32_t cost;
+} tunnel_t;
 
-typedef struct npc{
+typedef struct non_tunnel {
   heap_node_t *hn;
   uint8_t pos[2];
-  uint8_t next_pos[2];
-  int prevpos[2];
-  char type;
-  uint8_t speed;
-}npc_t;
-
-typedef struct character{
-  uint8_t pos[2];
-  union{
-    struct pc_t pc;
-    struct npc_t npc;
-  }
-}character_t;
+  uint8_t from[2];
+  int32_t cost;
+} non_tunnel_t;
 
 typedef enum dim {
   dim_x,
@@ -115,7 +104,7 @@ typedef struct room {
 } room_t;
 
 typedef struct dungeon {
-  uint16_t num_rooms;
+  uint32_t num_rooms;
   room_t *rooms;
   terrain_type_t map[DUNGEON_Y][DUNGEON_X];
   /* Since hardness is usually not used, it would be expensive to pull it *
@@ -127,9 +116,7 @@ typedef struct dungeon {
    * and pulling in unnecessary data with each map cell would add a lot   *
    * of overhead to the memory system.                                    */
   uint8_t hardness[DUNGEON_Y][DUNGEON_X];
-  uint32_t ntmap[DUNGEON_Y][DUNGEON_X];
-	uint32_t tmap[DUNGEON_Y][DUNGEON_X];
+  tunnel_t tunneling[DUNGEON_Y][DUNGEON_X];
+  non_tunnel_t non_tunneling[DUNGEON_Y][DUNGEON_X];  
   monster_t monster[DUNGEON_Y][DUNGEON_X];
-  pair_t pc;
-  int numMonsters;
 } dungeon_t;
