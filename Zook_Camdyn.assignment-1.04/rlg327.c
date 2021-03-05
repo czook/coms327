@@ -1457,6 +1457,446 @@ void usage(char *name)
   exit(-1);
 }
 
+//NEW CODE
+static uint32_t in_room(dungeon_t *d, int16_t y, int16_t x)
+{
+  int i;
+
+  for (i = 0; i < d->num_rooms; i++) {
+    if ((x >= d->rooms[i].position[dim_x]) &&
+        (x < (d->rooms[i].position[dim_x] + d->rooms[i].size[dim_x])) &&
+        (y >= d->rooms[i].position[dim_y]) &&
+        (y < (d->rooms[i].position[dim_y] + d->rooms[i].size[dim_y]))) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+static uint32_t in_same_room(dungeon_t *d, int16_t y1, int16_t x1, int16_t y2, int16_t x2)
+{
+  int i;
+
+  for (i = 0; i < d->num_rooms; i++) {
+    if ((x1 >= d->rooms[i].position[dim_x]) &&
+        (x1 < (d->rooms[i].position[dim_x] + d->rooms[i].size[dim_x])) &&
+        (y1 >= d->rooms[i].position[dim_y]) &&
+        (y1 < (d->rooms[i].position[dim_y] + d->rooms[i].size[dim_y])) &&
+	(x2 >= d->rooms[i].position[dim_x]) &&
+        (x2 < (d->rooms[i].position[dim_x] + d->rooms[i].size[dim_x])) &&
+        (y2 >= d->rooms[i].position[dim_y]) &&
+        (y2 < (d->rooms[i].position[dim_y] + d->rooms[i].size[dim_y]))) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+static int32_t non_tunnel_cmp(const void *key, const void *with) {
+  return ((non_tunnel_t *) key)->cost - ((non_tunnel_t *) with)->cost;
+}
+
+static int32_t tunnel_cmp(const void *key, const void *with) {
+  return ((non_tunnel_t *) key)->cost - ((non_tunnel_t *) with)->cost;
+}
+
+void generate_monsters(dungeon_t *dungeon, int numMonsters, char type){
+  int i;
+  for(i = 0; i < numMonsters; i++){
+    //50/50 chance of each attribute
+    int intelligence = rand() % 2;
+    int telepathy = rand() % 2;
+    int tunneling = rand() % 2;
+    int erratic = rand() % 2;
+    int placed = 0;
+    int x, y;
+    //Finds a place in a room where there isn't a character for new monster
+    while(!placed){
+      y = rand() % 105;
+      x = rand() % 160;
+      if(dungeon->map[y][x] == ter_floor_room && dungeon->monster[y][x].type == 'z'){
+	placed = 1;
+      }
+    }
+    //Based on attributes adds monster to the dungeon
+    if(intelligence == 0 && telepathy == 0 && tunneling == 0 && erratic == 0){
+      dungeon->monster[y][x].type = '0';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 0 && telepathy == 0 && tunneling == 0 && erratic == 1){
+      dungeon->monster[y][x].type = '1';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 0 && telepathy == 0 && tunneling == 1 && erratic == 0){
+      dungeon->monster[y][x].type = '2';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 0 && telepathy == 0 && tunneling == 1 && erratic == 1){
+      dungeon->monster[y][x].type = '3';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 0 && telepathy == 1 && tunneling == 0 && erratic == 0){
+      dungeon->monster[y][x].type = '4';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 0 && telepathy == 1 && tunneling == 0 && erratic == 1){
+      dungeon->monster[y][x].type = '5';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 0 && telepathy == 1 && tunneling == 1 && erratic == 0){
+      dungeon->monster[y][x].type = '6';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 0 && telepathy == 1 && tunneling == 1 && erratic == 1){
+      dungeon->monster[y][x].type = '7';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 1 && telepathy == 0 && tunneling == 0 && erratic == 0){
+      dungeon->monster[y][x].type = '8';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 1 && telepathy == 0 && tunneling == 0 && erratic == 1){
+      dungeon->monster[y][x].type = '9';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 1 && telepathy == 0 && tunneling == 1 && erratic == 0){
+      dungeon->monster[y][x].type = 'a';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 1 && telepathy == 0 && tunneling == 1 && erratic == 1){
+      dungeon->monster[y][x].type = 'b';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 1 && telepathy == 1 && tunneling == 0 && erratic == 0){
+      dungeon->monster[y][x].type = 'c';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 1 && telepathy == 1 && tunneling == 0 && erratic == 1){
+      dungeon->monster[y][x].type = 'd';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else if(intelligence == 1 && telepathy == 1 && tunneling == 1 && erratic == 0){
+      dungeon->monster[y][x].type = 'e';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+    else{
+      dungeon->monster[y][x].type = 'f';
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+    }
+
+    if(intelligence == 1){
+      dungeon->monster[y][x].lastKnown[0] = 0;
+      dungeon->monster[y][x].lastKnown[1] = 0;
+    }
+    
+    dungeon->monster[y][x].pos[0] = y;
+    dungeon->monster[y][x].pos[1] = x;
+    dungeon->monster[y][x].turn = 0;
+    dungeon->monster[y][x].id = i+1;
+    //Used for birthing specific monsters
+    if(type != 'z'){
+      dungeon->monster[y][x].type = type;
+      dungeon->monster[y][x].speed = rand() % 16 + 5;
+      dungeon->monster[y][x].pos[0] = y;
+      dungeon->monster[y][x].pos[1] = x;
+      dungeon->monster[y][x].turn = 0;
+    }
+  }
+}
+
+void moveStraight(monster_t *monster, int playerY, int playerX){
+      if(monster->pos[1] < playerX){
+	monster->next_pos[0] = monster->pos[0];
+	monster->next_pos[1] = monster->pos[1] + 1;
+      }
+      else if(monster->pos[1] > playerX){
+	monster->next_pos[0] = monster->pos[0];
+	monster->next_pos[1] = monster->pos[1] - 1;
+      }
+      else if(monster->pos[0] < playerY){
+	monster->next_pos[0] = monster->pos[0] + 1;
+	monster->next_pos[1] = monster->pos[1];
+      }
+      else if(monster->pos[0] > playerY){
+	monster->next_pos[0] = monster->pos[0] - 1;
+	monster->next_pos[1] = monster->pos[1];
+      }
+}
+
+void findShortest(dungeon_t *dungeon, monster_t *monster, int playerY, int playerX, int tunnel){
+  int ny = 0, nx = 0, best = INT_MAX;
+  int mony = monster->pos[0];
+  int monx = monster->pos[1];
+  //Finds closest move for tunneling monsters
+  if(tunnel){
+    if(dungeon->tunneling[mony - 1][monx    ].cost < best){
+      ny = -1;
+      best = dungeon->tunneling[mony - 1][monx    ].cost;
+    }
+    if(dungeon->tunneling[mony    ][monx + 1].cost < best){
+      nx = 1;
+      best = dungeon->tunneling[mony    ][monx + 1].cost;
+    }
+    if(dungeon->tunneling[mony + 1][monx    ].cost < best){
+      ny = 1;
+      best = dungeon->tunneling[mony + 1][monx    ].cost;
+    }
+    if(dungeon->tunneling[mony ][monx - 1].cost < best){
+      nx = -1;
+      best = dungeon->tunneling[mony    ][monx - 1].cost;
+    }
+  }
+  //Finds closest move for non-tunneling monsters
+  else{
+    if(dungeon->non_tunneling[monster->pos[0] - 1][monster->pos[1]    ].cost < best){
+      ny = -1;
+      best = dungeon->tunneling[monster->pos[0] - 1][monster->pos[1]    ].cost;
+    }
+    if(dungeon->non_tunneling[monster->pos[0]    ][monster->pos[1] + 1].cost < best){
+      nx = 1;
+      best = dungeon->tunneling[monster->pos[0]    ][monster->pos[1] + 1].cost;
+    }
+    if(dungeon->non_tunneling[monster->pos[0] + 1][monster->pos[1]    ].cost < best){
+      ny = 1;
+      best = dungeon->tunneling[monster->pos[0] + 1][monster->pos[1]    ].cost;
+    }
+    if(dungeon->non_tunneling[monster->pos[0]    ][monster->pos[1] - 1].cost < best){
+      nx = -1;
+      best = dungeon->tunneling[monster->pos[0]    ][monster->pos[1] - 1].cost;
+    }
+  }
+  monster->next_pos[0] = monster->pos[0] + ny;
+  monster->next_pos[1] = monster->pos[1] + nx;
+}
+
+void generate_move(dungeon_t *dungeon, heap_t *heap, monster_t *monster, int playerY, int playerX){
+  int erratic = rand() % 2;
+  int sameRoom = in_same_room(dungeon, monster->pos[0], monster->pos[1], playerY, playerX);
+    
+  if(monster->type == '@'){
+    //PC moves randomly
+    int ny = rand_range(-1, 1);
+    int nx = rand_range(-1, 1);
+    monster->next_pos[0] = monster->pos[0] + ny;
+    monster->next_pos[1] = monster->pos[1] + nx;
+  }
+  else if(monster->type == '0'){
+    //Monster moves only if PC is in its line of sight
+    if(sameRoom){
+      moveStraight(monster, playerY, playerX);
+    }
+    else{
+      monster->next_pos[0] = monster->pos[0];
+      monster->next_pos[1] = monster->pos[1];
+    }
+  }
+  else if(monster->type == '1'){
+    //Monster moves either erratically or else if PC is in line of sight
+    if(erratic){
+      int ny = rand_range(-1, 1);
+      int nx = rand_range(-1, 1);
+      monster->next_pos[0] = monster->pos[0] + ny;
+      monster->next_pos[1] = monster->pos[1] + nx;
+    }
+    else if(sameRoom){
+      moveStraight(monster, playerY, playerX);
+    }
+    else{
+      monster->next_pos[0] = monster->pos[0];
+      monster->next_pos[1] = monster->pos[1];
+    }
+  }
+  else if(monster->type == '2'){
+    //Monster can tunnel and moves if PC is in line of sight (doesn't ever need to tunnel)
+    if(sameRoom){
+      moveStraight(monster, playerY, playerX);
+    }
+    else{
+      monster->next_pos[0] = monster->pos[0];
+      monster->next_pos[1] = monster->pos[1];
+    }
+  }
+  else if(monster->type == '3'){
+    //Monster can tunnel and either moves erratically or if PC is in line of sight
+    if(erratic){
+      int ny = rand_range(-1, 1);
+      int nx = rand_range(-1, 1);
+      monster->next_pos[0] = monster->pos[0] + ny;
+      monster->next_pos[1] = monster->pos[1] + nx;
+    }
+    else if(sameRoom){
+      moveStraight(monster, playerY, playerX);
+    }
+    else{
+      monster->next_pos[0] = monster->pos[0];
+      monster->next_pos[1] = monster->pos[1];
+    }
+  }
+  else if(monster->type == '4'){
+    //Monster knows where the PC is and moves towards it in straight line
+    moveStraight(monster, playerY, playerX);
+  }
+  else if(monster->type == '5'){
+    //Monster either moves errtically or knows where the PC is and moves towards it in straight line
+    if(erratic){
+      int ny = rand_range(-1, 1);
+      int nx = rand_range(-1, 1);
+      monster->next_pos[0] = monster->pos[0] + ny;
+      monster->next_pos[1] = monster->pos[1] + nx;
+    }
+    else
+      moveStraight(monster, playerY, playerX);
+  }
+  else if(monster->type == '6'){
+    //Monster moves towards PC in straight line and can tunnel
+    moveStraight(monster, playerY, playerX);
+  }
+  else if(monster->type =='7'){
+    //Monster can tunnel and either moves erratically or in a straight line towards PC
+    if(erratic){
+      int ny = rand_range(-1, 1);
+      int nx = rand_range(-1, 1);
+      monster->next_pos[0] = monster->pos[0] + ny;
+      monster->next_pos[1] = monster->pos[1] + nx;
+    }
+    else
+      moveStraight(monster, playerY, playerX);
+  }
+  else if(monster->type == '8'){
+    //Monster moves along shortest path towards the PC when in line of sight or if last known position is known
+    if(sameRoom){
+      findShortest(dungeon, monster, playerY, playerX, 0);
+      monster->lastKnown[0] = playerY;
+      monster->lastKnown[1] = playerX;
+    }
+    else if(monster->lastKnown[0] != 0 && monster->lastKnown[1] != 0){
+      moveStraight(monster, monster->lastKnown[0], monster->lastKnown[1]);
+      monster->lastKnown[0] = 0;
+      monster->lastKnown[1] = 0;
+    }
+    else{
+      monster->next_pos[0] = monster->pos[0];
+      monster->next_pos[1] = monster->pos[1];
+    }
+  }
+  else if(monster->type == '9'){
+    //Monster either moves eratically or along shortest path when PC is in line of sight or last position is known
+    if(erratic){
+      int ny = rand_range(-1, 1);
+      int nx = rand_range(-1, 1);
+      monster->next_pos[0] = monster->pos[0] + ny;
+      monster->next_pos[1] = monster->pos[1] + nx;
+    }
+    else if(sameRoom){
+      findShortest(dungeon, monster, playerY, playerX, 0);
+      monster->lastKnown[0] = playerY;
+      monster->lastKnown[1] = playerX;
+    }
+    else if(monster->lastKnown[0] != 0 && monster->lastKnown[1] != 0){
+      moveStraight(monster, monster->lastKnown[0], monster->lastKnown[1]);
+      monster->lastKnown[0] = 0;
+      monster->lastKnown[1] = 0;
+    }
+    else{
+      monster->next_pos[0] = monster->pos[0];
+      monster->next_pos[1] = monster->pos[1];
+    }
+  }
+  else if(monster->type == 'a'){
+    //Monster can tunnel and moves along shortest path when PC is in line of sight or is last position is known
+    if(sameRoom){
+      findShortest(dungeon, monster, playerY, playerX, 1);
+      monster->lastKnown[0] = playerY;
+      monster->lastKnown[1] = playerX;
+    }
+    else if(monster->lastKnown[0] != 0 && monster->lastKnown[1] != 1){
+      moveStraight(monster, monster->lastKnown[0], monster->lastKnown[1]);
+      monster->lastKnown[0] = 0;
+      monster->lastKnown[1] = 0;
+    }
+    else{
+      monster->next_pos[0] = monster->pos[0];
+      monster->next_pos[1] = monster->pos[1];
+    }
+  }
+  else if(monster->type == 'b'){
+    //Monster can tunnel and either moves erratically of moves along shortest path when PC is in line of sight or is last position is known
+    if(erratic){
+      int ny = rand_range(-1, 1);
+      int nx = rand_range(-1, 1);
+      monster->next_pos[0] = monster->pos[0] + ny;
+      monster->next_pos[1] = monster->pos[1] + nx;
+    }
+    else if(sameRoom){
+      findShortest(dungeon, monster, playerY, playerX, 1);
+      monster->lastKnown[0] = playerY;
+      monster->lastKnown[1] = playerX;
+    }
+    else if(monster->lastKnown[0] != 0 && monster->lastKnown[1] != 1){
+      moveStraight(monster, monster->lastKnown[0], monster->lastKnown[1]);
+      monster->lastKnown[0] = 0;
+      monster->lastKnown[1] = 0;
+    }
+    else{
+      monster->next_pos[0] = monster->pos[0];
+      monster->next_pos[1] = monster->pos[1];
+    }
+  }
+  else if(monster->type == 'c'){
+    //Monster moves along shortest path towards current position of PC
+    findShortest(dungeon, monster, playerY, playerX, 0);
+  }
+  else if(monster->type == 'd'){
+    //Monster either moves erratically or along shortest path towards current position of PC
+    if(erratic){
+      int ny = rand_range(-1, 1);
+      int nx = rand_range(-1, 1);
+      monster->next_pos[0] = monster->pos[0] + ny;
+      monster->next_pos[1] = monster->pos[1] + nx;
+    }
+    else
+      findShortest(dungeon, monster, playerY, playerX, 0);
+  }
+  else if(monster->type == 'e'){
+    //Monster can tunnel and moves along shortest path towards current position of PC
+    findShortest(dungeon, monster, playerY, playerX, 1);
+  }
+  else{
+    //Monster can tunnel and either moves erratically or moves along shortest path towards current position of PC
+    if(erratic){
+      int ny = rand_range(-1, 1);
+      int nx = rand_range(-1, 1);
+      monster->next_pos[0] = monster->pos[0] + ny;
+      monster->next_pos[1] = monster->pos[1] + nx;
+    }
+    else
+      findShortest(dungeon, monster, playerY, playerX, 1);
+  }
+  
+  
+  if((monster->type == '@' || monster->type == '0' || monster->type == '1' || monster->type == '4' || monster->type =='5' || monster->type == '8' || monster->type == '9' || monster->type == 'c' || monster->type == 'd') &&
+     dungeon->hardness[monster->next_pos[0]][monster->next_pos[1]] != 0){
+    monster->next_pos[0] = monster->pos[0];
+    monster->next_pos[1] = monster->pos[1];
+    monster->turn = monster->turn + 1000 / monster->speed;
+    monster->hn = heap_insert(heap, monster);
+  }
+  
+  else{
+    //printf("type: %c turn: %d cur y: %d cur x: %d in room?: %d\n", monster->type, monster->turn, monster->pos[0], monster->pos[1], sameRoom);
+    monster->turn = monster->turn + 1000 / monster->speed;
+    monster->hn = heap_insert(heap, monster);
+  }
+  
+}
+
+static int32_t move_cmp(const void *key, const void *with) {
+  return ((monster_t *) key)->turn - ((monster_t *) with)->turn;
+}
+
+
 int main(int argc, char *argv[])
 {
   dungeon_t d;
@@ -1604,12 +2044,136 @@ int main(int argc, char *argv[])
     d.pc[dim_x] = d.rooms[0].position[dim_x];
     d.pc[dim_y] = d.rooms[0].position[dim_y];
   }
+  place_pc(&d, &playerY, &playerX);
+
+  //If monsters were put into the game
+  if(numMonsters >= 0){
+    generate_monsters(&d, numMonsters, 'z');
+
+    int ids[numMonsters + 1];
+    int y;
+    for(y = 0; y < numMonsters + 1; y++){
+      ids[y] = y;
+    }
 
   populate_dungeon(&d);
   dijkstra_non_tunneling_monsters(&d);
   dijkstra_tunneling_monsters(&d);
   populate_non_tunneling_monsters(&d);
   populate_tunneling_monsters(&d);
+  
+heap_t heap;
+    heap_init(&heap, move_cmp, NULL);
+  
+    int j, k;
+    for(j = 0; j < 105; j++){
+      for(k = 0; k < 160; k++){
+	if(d.monster[j][k].type != 'z')
+	  generate_move(&d, &heap, &d.monster[j][k], playerY, playerX);
+	else
+	  d.monster[j][k].hn = NULL;
+      }
+    }
+
+    monster_t *move;
+      
+    int playing = 1;
+    while(playing && (move = heap_remove_min(&heap))){
+
+      if(ids[move->id] == -1){
+	while(ids[move->id] == -1){
+	  move->hn = NULL;
+	  move = heap_remove_min(&heap);
+	}
+      }
+
+      int ny = move->next_pos[0];
+      int nx = move->next_pos[1];
+      int y = move->pos[0];
+      int x = move->pos[1];
+
+      if(d.monster[move->next_pos[0]][move->next_pos[1]].type != 'z' && d.monster[move->next_pos[0]][move->next_pos[1]].type != d.monster[move->pos[0]][move->pos[1]].type){
+	//If collision with player game ends
+	if(move->next_pos[0] == playerY && move->next_pos[1] == playerX){
+	  printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGame Over\n");
+	  playing = 0;
+	  break;
+	}
+	//Else consumes monster in that space
+	else{
+	  int t;
+	  for(t = 0; t < numMonsters + 1; t++){
+	    if(d.monster[ny][nx].id == ids[t]){
+	      ids[t] = -1;
+	    }
+	  }
+	  d.monster[ny][nx] = *move;
+ 	  d.monster[ny][nx].pos[0] = ny;
+ 	  d.monster[ny][nx].pos[1] = nx;
+ 	  d.monster[ny][nx].hn = NULL;
+	  d.monster[y][x].type = 'z';
+	}
+      }
+      //If next space is rock
+      else if(d.hardness[move->next_pos[0]][move->next_pos[1]] != 0){
+	if(d.hardness[move->next_pos[0]][move->next_pos[1]] <= 85){
+ 	  //Makes space a hallway
+ 	  d.hardness[move->next_pos[0]][move->next_pos[1]] = 0;
+ 	  d.map[move->next_pos[0]][move->next_pos[1]] = ter_floor_hall;
+	  //Moves monster into space
+	  d.monster[ny][nx] = *move;
+ 	  d.monster[ny][nx].pos[0] = ny;
+ 	  d.monster[ny][nx].pos[1] = nx;
+ 	  d.monster[ny][nx].hn = NULL;
+ 	  d.monster[y][x].type = 'z';
+	}
+	else{
+	  d.hardness[ny][nx] = d.hardness[ny][nx] - 85;
+      	  //If monster doesn't make it through the wall it stays where it is
+	  d.monster[y][x].next_pos[0] = y;
+	  d.monster[y][x].next_pos[1] = x;
+	  ny = y;
+	  nx = x;
+	  d.monster[y][x] = *move;
+	  d.monster[y][x].hn = NULL;
+	}
+       	
+      }
+      //If monster moves to next space with no collision and no tunneling
+      else{
+	  d.monster[move->next_pos[0]][move->next_pos[1]] = *move;
+ 	  d.monster[move->next_pos[0]][move->next_pos[1]].pos[0] = move->next_pos[0];
+ 	  d.monster[move->next_pos[0]][move->next_pos[1]].pos[1] = move->next_pos[1];
+ 	  d.monster[move->next_pos[0]][move->next_pos[1]].hn = NULL;
+	  
+	  //If the monster moves out of its current space reset the space to have no monster
+	  if(move->pos[0] != move->next_pos[0] || move->pos[1] != move->next_pos[1])
+	    d.monster[move->pos[0]][move->pos[1]].type = 'z';
+      }
+    
+      //If player moves, recalculate distances and re-render dungeon
+      if(d.monster[ny][nx].type == '@'){
+	playerY = ny;
+	playerX = nx;
+	
+	non_tunneling(&d, playerY, playerX);
+  
+	tunneling(&d, playerY, playerX);
+
+	render_dungeon(&d);
+
+	usleep(100000);
+      }
+	generate_move(&d, &heap, &d.monster[ny][nx], playerY, playerX);
+    }
+  }
+  else{
+      non_tunneling(&d, playerY, playerX);
+  
+      tunneling(&d, playerY, playerX);
+
+      render_dungeon(&d);
+  }
 
   if (do_save) {
     if (do_save_seed) {
@@ -1634,6 +2198,7 @@ int main(int argc, char *argv[])
       free(save_file);
     }
   }
+  
 
   delete_dungeon(&d);
 
