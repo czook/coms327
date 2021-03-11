@@ -1,0 +1,1 @@
+This code uses Dijkstra's algorithm for finding the shortest path to the player from any point in the dungeon. This code makes roooms and corridors and places monsters in the dungeon rooms. The monsters try to find the player character and eat it.
