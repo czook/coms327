@@ -376,27 +376,25 @@ void test_args(int argc, char ** argv, int this, int * s, int * l, int *p, int *
 void monster_list(Dungeon * dungeon) {
 	clear();
 	
-	/* monster view array and population */
 	char mons [dungeon->ns-1][30];
-	int i;
-	for(i = 1; i < dungeon->ns; i++) {
+	for(int i = 1; i < dungeon->ns; i++) {
 		char ns[6];
 		char ew[5];
 		
-		int hd = dungeon->ss[0].p.y - dungeon->ss[i].p.y;
-		int wd = dungeon->ss[0].p.x - dungeon->ss[i].p.x;
+		int latitude = dungeon->ss[0].p.y - dungeon->ss[i].p.y;
+		int longitude = dungeon->ss[0].p.x - dungeon->ss[i].p.x;
 		
-		if(hd > 0)
+		if(latitude > 0)
 			strcpy(ns, "north");
 		else
 			strcpy(ns, "south");
 		
-		if(wd > 0)
+		if(longitude > 0)
 			strcpy(ew, "west");
 		else
 			strcpy(ew, "east");
 		
-		sprintf(mons[i-1], "%c, %2d %s and %2d %s", dungeon->ss[i].c, abs(hd), ns, abs(wd), ew);
+		sprintf(mons[i-1], "%c, %2d %s and %2d %s", dungeon->ss[i].c, abs(latitude), ns, abs(longitude), ew);
 	}
 	
 	/* secondary window */
@@ -412,15 +410,14 @@ void monster_list(Dungeon * dungeon) {
 		bot = dungeon->ns -2;
 	}
 	
-	int j;
-	for(;;) {
+	while(1) {
 		/* put the monster view to the screen */
-		for(i = top, j = 0; i < dungeon->ns -1 && i <= bot && j < 24; i++, j++) {
+		for(int i = top, j = 0; i < dungeon->ns -1 && i <= bot && j < 24; i++, j++) {
 			mvprintw(j, 0, mons[i]);
 		}
 		
 		/* handle user interaction */
-		MLV: ;
+		MLV:
 		int32_t k;
 		k = getch();
 
@@ -466,7 +463,7 @@ void monster_list(Dungeon * dungeon) {
 
 /* processes pc movements ;; validity checking is in monsters.c's gen_move_sprite() */
 void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
-	GCH: ;
+	GCH:
 	int32_t k;
 	k = getch();
 	if(k == 'Q') {
@@ -684,7 +681,7 @@ int main(int argc, char * argv[]) {
 		printer = &print_dungeon_nnc;
 	}
 
-	PNC: ;
+	PNC: 
 	regen = FALSE;
 
 	print_dungeon(&dungeon, 0, 0);
@@ -750,7 +747,7 @@ int main(int argc, char * argv[]) {
 
 	/*** tear down sequence ***/
 	//binheap_delete(&h);
-	END: ;
+	END: 	
 	delwin(stdscr);
 	endwin();
 
@@ -758,7 +755,7 @@ int main(int argc, char * argv[]) {
 		write_dungeon(&dungeon, path);
 	}
 
-	DUNFREE: ;
+	DUNFREE: 
 	/* free our arrays */
 	for(i = 0; i < dungeon.h; i++) {
 		free(dungeon.d[i]);
