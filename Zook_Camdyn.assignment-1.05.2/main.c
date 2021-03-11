@@ -53,16 +53,12 @@ void map_dungeon_t(Dungeon * dungeon) {
 			tiles[i][j].v = FALSE;
 		}
 	}
-
 	int px = dungeon->ss[dungeon->pc].p.x;
 	int py = dungeon->ss[dungeon->pc].p.y;
 	tiles[py][px].cost = 0;
 	tiles[py][px].v = TRUE;
 	binheap_insert(&h, &tiles[py][px]);
-
-
 	binheap_node_t	*p;
-
 	while((p = binheap_remove_min(&h))) {
 		int hx = ((Tile_Node *) p)->x;
 		int hy = ((Tile_Node *) p)->y;
@@ -362,21 +358,21 @@ void monster_list(Dungeon * dungeon) {
 	WINDOW *w;
 	w = newwin(24, 80, 0, 0);
 	Bool scroll = FALSE;
-	int top = 0;
-	int bot;
+	int t = 0;
+	int b;
 	if(24 < dungeon->ns -1) {
 		scroll = TRUE;
-		bot = 23;
+		b = 23;
 	} else {
-		bot = dungeon->ns -2;
+		b = dungeon->ns -2;
 	}
 	
 	while(1) {
-		for(int i = top, j = 0; i < dungeon->ns -1 && i <= bot && j < 24; i++, j++) {
+		for(int i = t, j = 0; i < dungeon->ns -1 && i <= b && j < 24; i++, j++) {
 			mvprintw(j, 0, mons[i]);
 		}
 		
-		MLV:;
+		MLV:
 		int32_t k;
 		k = getch();
 
@@ -385,9 +381,9 @@ void monster_list(Dungeon * dungeon) {
 				if(scroll == FALSE)
 					goto MLV;
 					
-				if(top-1 >= 0) {
-					top--;
-					bot--;
+				if(t-1 >= 0) {
+					t--;
+					b--;
 				}
 				clear();
 				
@@ -396,9 +392,9 @@ void monster_list(Dungeon * dungeon) {
 				if(scroll == FALSE)
 					goto MLV;
 				
-				if(bot+1 < dungeon->ns-1) {
-					bot++;
-					top++;
+				if(b+1 < dungeon->ns-1) {
+					b++;
+					t++;
 				}
 				clear();
 				
