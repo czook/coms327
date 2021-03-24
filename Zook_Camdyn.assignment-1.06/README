@@ -1,0 +1,17 @@
+ Allen Bradley Roberts
+ 
+ I ported everything from C to C++ and turned Character into a Class. I also
+ turned NPC and PC into classes that inherit from Character. My biggest issue
+ with porting was correcting the errors but I was able to fix the errors within
+ a couple of hours.
+
+ I implemented a teleportation function so that when the player pressed 'g'
+ they were put into teleportation mode until they pressed 'g' again which 
+ exits normally or press 'r' which places them in a random position in the 
+ dungeon then exits. 
+
+ I was able to add the PC fog of war. Basically I made a char map and anything
+ the PC saw was added to the map and the map was what was rendered instead of
+ the normal dungeon. Seems to work flawlessly. It currently remembers monsters
+ however the monsters are shown several times if the monster chases the PC.
+ I don't think this is an issue though.

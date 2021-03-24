@@ -1,0 +1,13 @@
+Allen Roberts
+
+I added functionality to generate monsters based on their descriptions in
+the monster_desc.txt file. I am currently generating all of the correctly 
+written monsters in monster_desc.txt to the dungeon.
+
+I was able to get monster colors working without too much issues. It displays
+when the PC can see the monsters as well as if the player shows the entire 
+map. 
+
+I was not able to get descriptions working correctly. I'm having some weird
+error with it that I'm not able to get past. I will continue to work on it 
+tomorrow and hopefully get it finished before submission closes.

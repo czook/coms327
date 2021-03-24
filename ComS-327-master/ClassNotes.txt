@@ -1,0 +1,668 @@
+Thursday, September 20th, 2018
+------------------------------
+
+"extern" can be used to have a variable declared in a header file and have access to it in the .c file. (super global variable)
+In general, everything in a header file should be extern.
+
+HW 1.04:
+--------
+4 possible personalities of monsters:
+    1. smart 
+    2. telepathic
+    3. tunnelling
+    4. eratic 
+
+So 16 different monsters represented by a '0' -> 'f'.
+
+hardcode individual monsters with personalities and test it out, then once everything works, randomize it.
+They also have a speed in the range(5, 20);
+PC ( player character ) speed is always 10.
+
+Next turn is @ game turn (1000/speed + current turn)
+
+Example:
+    Monster | Speed | Next turn
+    ---------------------------
+        @   |  10   |  0
+        F   |  10   |  0
+        7   |   5   |  0
+        9   |  20   |  0
+
+        PC goes first - pull it out of heap, pc's turn is its current turn + 1000/speed. So it's next turn is going to be 100.
+        Pull next thing (F) - do the same as above
+        Loop through all monsters taking the lowest value of Next turn and doing the above. PC always starts first then it's the lowest turn value
+
+    AFTER first loop of checking turns is taken:
+
+    Monster | Speed | Next turn
+    ---------------------------
+        @   |  10   |  100
+        F   |  10   |  100
+        7   |   5   |  200
+        9   |  20   |  50
+
+    Then move 9 again. because it's the smallest. Then it'll be 100, so move up to the lowest turn value at the highest point ( PC ).
+
+    When we decide where the monster moves, it is going to check the surrounding blocks value from dykstras algorithm and randomly decide where to move
+    Visualization:
+    2 2 2 2 2
+    2 1 1 1 2
+    2 1 F 1 2
+    2 1 1 1 2
+    2 2 2 2 2
+
+    After each time the PC moves, the gradient has to update (run dykstras again to get the updated values)
+
+    currently the attacker will always win, and monsters can kill eachother. basically they just take over each other.
+
+    "remove top thing in the heap, do a move based on what was removed, then add the after move monsters back onto the heap"
+
+What happens when a monster is in the heap and gets killed?
+        A: Mark that monster as being dead somewhere, and once it's removed from the heap to do it's "next" move, just throw it away instead of doing it's turn.
+
+a PriorityQueue drives the monster|speed|nextturn map
+create a charactermap(of pointer to characters)
+
+Instructor reccomends:
+    Character Struct { 
+        PC Struct (pointer)
+        NPC Struct (pointer)
+    } // One of theses will have a value and the other will have a NULL (this just tells whether or not the Character is the PC or NPC)
+
+Final note: They are starting to check valgrind.
+
+
+
+
+NEW MATERIAL:
+-------------
+    Representation:
+        Basically just a rehash of what we learned in CS 321 and CE 281 with number representation in binary
+
+    Bitwise Operators:
+        AND - ( logical AND is && Bitwise AND is & )
+            takes 2 operands and compairs then bit by bit, and does a logical AND on those bits:
+                EX:
+                        1 0 1 1
+                        1 1 0 1 &  
+                        ---------
+                        1 0 0 1
+
+        OR - ( Logical OR is || Bitwise OR is | )
+            Works the same as AND except for OR
+        
+        Exclusive OR - ( Bitwise is ^ )
+
+        NOT - (Bitwise is ~)
+            Reverse every bit
+
+        Right Shift - ( >> )
+            whatYourShifting >> howFarItsShifting
+            Equal/Similar to multiplication by 2.
+            Example:
+                1101 1010 >> 3 = 0001 1011 ( 000 1101 1 ) 
+
+        Left Shift - ( << )
+            Example:
+                1101 1010 << 3 =  1101 0000 ( 1 1010 000 )
+
+    BitFields:
+        Allows us to manipulate numbers as though they are arrays of boolean values. 
+        Example:
+            # define NPC_SMART      0x00000001
+            # define NPC_TELEPATH   0x00000002
+
+            This lets us do bitwise operations on monsters with multiple characteristics to see what they can do.
+            if ( characteristics & (NPC_SMART | NPC_TELEPATH)){
+                DoSomething();
+            }
+
+            Example: 
+                10 | 20 | 40 = 70 ( 0111 0000 ) 
+
+                So if the characteristics AND THIS so   
+                    let characteristic = 0000 0001
+
+                    0000 0001
+                    0111 0000 &
+                    -----------
+                    0000 0000 So it doesn't have any of these characteristics
+
+                    0000 0001
+                    0101 0101 &
+                    -----------
+                    0000 0001 So it has whatever thing that is... kinda lost
+
+            More often then not you'd do something like:
+                if ( !( characteristics & NPC_SMART)) { // if monster is not smart
+                    dosomething();
+                } 
+
+
+Tuesday September 25, 2018 Lecture
+----------------------------------
+Generics: C doesn't really have generics they are just "void pointers".
+---------
+    void pointers:
+        - Cannot be dereferenced
+        - Can store anything in it
+        - Example: we're going to make a generic insertion sort
+        - cannot index because we cannot dereference, so we need to know the size of what is in it so we know how far to read data
+
+        Integer version:
+        ----------------
+            void insertion_sort(int *a, int n){
+                int i, j, t; // t = temporary
+
+                for(i = 1; i < n; i++){
+                    for(t = a[i], j = i-1; j > 1 && a[j] > t; j--){
+                        a[j+1] = a[j];
+                    }
+                    a[j+1] = t;
+                }
+            } 
+
+        Generic (void pointer) version:
+        -------------------------------
+            void generic_insertion_sort(void *data, int n, size_t s, 
+                                        int (*compare)(void *, void *))  // type signiature for a function pointer "compare", takes 2 void arguments, and returns an int
+            {
+                char *a; // indexable and 4 bytes
+                int i, j; // t (temp) isn't quite as straight forward because it can be anything
+                void *t;
+
+                t = malloc(s); // so t is the same size as the values in the void array
+                a = data;
+                
+                for(i = 1; i < n; i++){ // for the next loop, cannot do assignment statements or comparators, so improvise with memcpy     
+                    for(memcpy(t, a + (i * s), s), j = i -1; // assign
+                        j > -1 && compare( a + (j * s ), t ) > 0; //compare
+                        j--) // increment/decrement
+                        {
+                            memcpy(a + (( j + 1 ) * s), a + ( j * s ), s);
+                        }
+                    memcpy(a + (( j + 1 ) * s), t, s);
+                }
+            } 
+
+            - memcpy - look at man page: takes 2 pointers and a size; first is destination, then source, then size; memcpy(Destination, Source, sizeof)
+            - memcpy(t, a + (i * s), s) is the generics way of doing t = a[i]
+            - there is a memcpy assembly instruction in x86. It is impossible for a loop to be faster than this, so just use memcpy
+
+
+        Test code:
+        ----------
+
+            int compare_int(void *v1, void *v2){
+                return *((int *) v1) - *((int *) v2);
+                // comparater got the address of the ints, So we tell the compiler "this is an int" (int *) then we dereference to get the value ( *(int *) )
+            }
+
+            int compare_string(void *v1, void *v2){
+                return strcmp(*(char **) v1, *(char **) v2); // dereference
+                // we're getting the address, so first we cast to the reference it is, so it's a character pointer pointer (char array) ( char ** ) then dereference *(char **), 
+                // The value in *(value **) doesnt neccesarilly matter, it just has to be large enough to hold the address
+            }
+
+            int main( int argc, char *argv[]){
+                int a[] = { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+                int i;
+
+                for (i = 0; i < 10; i++){ // Print normal
+                    printf("%d ", a[i]);
+                }
+                printf("\n");
+                
+                generic_insertion_sort(a, (sizeof(a) / sizeof(a[0])), sizeof(a[0]), compare_int);
+
+                for (i = 0; i < 10; i++){ // print post sort
+                    printf("%d ", a[i]);
+                }
+                printf("\n");            
+
+                // Now we're testing with strings
+                char *s[] = { // needs to be a pointer to the array so it doesnt just assign values to S but instead to the memory? 
+                    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+                };
+
+                for (i = 0; i < 10; i++){ // print pre sort
+                    printf("%d ", a[i]);
+                }
+                printf("\n");
+                
+                generic_insertion_sort(s, (sizeof(s) / sizeof(s[0])), sizeof(s[0]), compare_string);
+                /* or use the following:
+                    qsort(s, (sizeof(s) / sizeof(s[0])), sizeof(s[0]), compare_string));
+                */
+                for (i = 0; i < 10; i++){ // print post sort
+                    printf("%d ", a[i]);
+                }
+                printf("\n"); // or putchar('\n');
+            }
+
+        End Test
+        --------
+
+        - Stdlib has something identical called qsort which does the same thing as our generic_insertion_sort
+        - qsort_r - Thread safe version
+
+Thursday September 27, 2018 Lecture
+---------------------------------
+    HW 1.04
+    -------
+        Monsters:
+        ---------
+            50% chance for each of theses:
+                1) Intelligent ( knows the map of the dungeon )
+                2) Telepathic ( Knows PC location (i.e. Dijkstra's) ) Tried to take a straight path, if mixed with Int then it'll follow dijkstra's
+                3) tunnelling
+                4) eratic ( runs around randomly )
+        - They need to have line-of-site somehow around them. Prof used Bresenhams line drawing algorithm.
+
+    New Material:
+    -------------
+        Preprocessor:
+        -------------
+            - Preprocess code with gcc switch -E and pipe through less ( gcc program -E | less )
+            - When we start a line with a # then the preprocessor is doing something
+            - Conditional Compilation: At compile time check what symbols we want and use them.
+            - Macro's such as mapxy(x,y) are basically super simple functions without the overhaul of a function call.
+            - Just make sure you use macro's as they're intended or else strange errors will occur.
+                Example Code:
+                --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                    #include <stdio.h>
+
+                    #define FOO 5 // use this over const
+                    const int FOO = 5; //Same behavior as #define but is new to C
+                        // advantage to macro vs const: macro is a litteral, const int is a variable so for variables we'd have to put into cache
+                        // so "technically" it's slower.
+
+                    // Function type macro:
+                    // -----------------------------------------------------------------------------------------------------------
+                        #define min(x, y) (x < y ? x : y)
+                            // this doesnt know to take int or double, so it'll have error messages if this isn't used correctly
+                            // Example Bad usage:
+                                // min(foo(x), bar(y)) --> (foo(x) < bar(y) ? foo(x) : bar(y))
+                            //Example good usage:
+                                // min(3,5) --> (3 < 5 ? 3 : 5)
+
+                        // Basic blocks get the value of their last line
+                            // typeof(Var) VarName = Var
+                            // Macro's have to be on the same line... but can use \ to show it continues
+                            // This is the better choice in general
+                        #define max(x, y) ({  \
+                            typeof(x) _x = x; \
+                            typeof(y) _y = y; \
+                            (_x > _y ? _x : _ y); \
+                        })
+                            // Example with foo/bar
+                                // max( foo(x), bar(y) ) --> _x = foo(x); _y = bar(y); (_x > _y ? _x : _ y)
+
+                    // -----------------------------------------------------------------------------------------------------------
+                    
+                    // Concatination
+                    #define concatinate(x, y) (x ## y) // Concatinates x and y together
+                        // Don't use this unless necessary
+
+                    // Stringification?
+                    #define to_string(s) #s // turns the thing to a string
+                        // how is it useful? lookup tables.... I guess 
+
+                    int main(){
+                        printf("%d \n", FOO); // Will print "5"
+                        printf("%d \n", min(3, 5 )); // Should print the lowest number... 3
+                        printf("%f \n", min(8.777, 7.5)); // Prints 7.5
+                        //printf("%d \n", min(foo(x), bar(y))); // Bad because it'll run the functions several times, and could possibly not return the same thing everytime
+                        printf("%d \n", max(foo(x), bar(y))); // this fixes the whole "bad because blah blah blah" 
+
+                        concatinate(print,f)("Hello world!\n"); // same as 'printf("Hello world!\n");'
+                        printf(to_string(Hello World)); // when preprocessing
+                        return 0;
+                    }
+
+                --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                --------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+
+Tuesday October 2, 2018 Lecture Notes:
+--------------------------------------
+
+    HW 04:
+    ------
+        - PC doesnt have to move?
+        - only going to check some for some tunnelling monsters and some not tunnelling... if i cant get anything else working
+
+    Continue from Thursday:
+    -----------------------
+        Macros:
+        -------
+            - Code that causes GCC to crash
+                Released in professors lecture notes gcc_crash.c. It just makes a gigantic file.
+
+    New Notes:
+    ----------
+        Exam in a week and 2 days.
+
+        Declarations: (How they work and what they mean)
+        ------------------------------------------------
+            Scope - Where in a programs a variable is accessible
+            Lifetime - when in a program a variable exists
+
+            Keywords:
+            ---------
+                - auto
+                    everything is auto by default, using this is very rare, dont worry about it.
+                - consts
+                    Makes the variable immutable so it cannot be changed
+                - extern    
+                    compiler: dont allocate space "here" allocate space somewhere else. There is just a variable somewhere
+                - static
+                    scope doesn't change
+                    lifetime becomes the lifetime of the program
+                    it's perfectly safe to return the address of a static variable in a function
+                    think "Private"
+                - register
+                    ex: register int i;
+                    hint to compiler that we intend to use this variable a lot so map this into a register instead of in memory.
+                    not guaranteed to work, but if it works, the program will run much faster
+                - violate
+                    ex: violate int i;
+                    tells the compiler that this value could change outside of the control of normal program flow
+                    useful for multithreaded programming
+                - inline
+                    optimization. only for functions, Similar to function-type macros. puts function body inside caller without function call.
+                    another compiler hint, doesn't necessary work every time
+                - goto
+                    unconditional jump
+                    Generally DO NOT USE
+                    however, sometimes it can be okay
+
+            GDB:
+            ----
+            "call" whatever - runs the whatever code during debugging so we can test stuff
+
+            
+
+Thursday October 18:
+--------------------
+    C++ Introduction:
+    -----------------
+        - namespaces
+            - allow you to use the same name in multiple places without collision
+        - templates
+            - evil and suck
+        - new IO operators and functions
+
+        Things to like about C++:
+        -------------------------
+            - C++ has boolean
+            - Exceptions
+            - Objects
+            - New way to cast:
+                C: (int) i 
+                C++: int(i)
+                Runtime: dynamic_cast<int>(i)
+        
+        Things to NOT like:
+        -------------------
+            - Things require casts that didnt before
+            - LOTS of shitty error messages
+
+        Things that are NOT a part of C++:
+        ----------------------------------
+            - New first-class data types (like String)
+            - Bounds checking
+            - Garbage Collection
+                - new and delete instead of malloc and free for instances of classes
+                - can use new and delete for EVERYTHING if you want too
+            
+        Extras:
+        -------
+            - compile with g++
+            - standard files dont have ".h"
+            - tons of file extensions, typically use .cpp
+            - can compile with gcc but add -lstdc++
+            - const is used a shit-ton in C++, however const is SLIGHTLY different, use this kind of like a define, so cannot change at all, no hackery
+            - volatile: tell compiler "dont optimize this variable" so setting const volatile i = 3 then try to change with hackery works.
+            
+            - References:
+            -------------
+                - why do references exist? : they are "syntactic sugar" 
+                - use the address operator in a declaration
+                - Must initialize immediately
+                - int &r = i;
+                - after this r and i are 2 names for the exact same thing
+                - references are pointers that you dont have to dereference
+                impliment a couple of swap functions:
+                -------------------------------------
+
+                    #include <iostream>
+
+                    using namespace std;
+
+                    void c_swap(int *a, int *b){
+                        int tmp;
+
+                        tmp = *a;
+                        *a = *b;
+                        *b = tmp;
+                    }// C style swap
+
+                    void cpp_swap(int &a, int &b){
+                        int tmp;
+
+                        tmp = a;
+                        a = b;
+                        b = tmp;
+                    }// C++ style swap
+
+                    // These two functions accomplish 100% the exact same thing
+
+                    int main(int argc, char *argv[]){
+                        int x = 5;
+                        int y = 7;
+
+                        int *p;
+
+                        p = &x; // p and x point to the exact same place in memory
+                        *p = 8; // x is now 8
+                        p = &y; // p and y now point to the exact same place in memory
+                        *p = 10; // y is now 10
+                        
+                        const int &r = x; // cant change x through r
+                        
+
+                        cout << x << " " << y << endl;
+
+                        c_swap(x,y);
+
+                        cout << x << " " << y << endl;
+                        
+                        cpp_swap(x,y);
+
+                        cout << x << " " << y << endl;
+                        
+                        return 0;
+                    }
+
+
+        Hello World Code:
+        -----------------
+
+                #include <stdio.h>
+
+                int main(int argc, char *argv[]){
+
+                    printf("Hello world\n");
+
+                    return 0;
+                } // exact same as C
+
+                // Now the same thing but the C++ way... HOWEVER, both work prefectly in C++
+                #include <iostream>
+                // using namespace std; // Use this or use std::cout... however using namespace std; is bad form because you can have more namespace collisions
+                int main(int argc, char *argv[]){
+
+                    std::cout << "Hello World" << std::endl; // endl forces a buffer flush, and prints a new line
+
+                    return 0;
+                }
+        
+
+    Next Assignment:
+    ----------------
+        port to c++:
+        ------------
+            - change extensions
+            - change makefile
+            - fix errors
+        
+        Fog of War:
+        -----------
+            - remember what we have seen
+            - if something changes we wont know (ex. monster moves into a room that we have left)
+            - create another map of the dungeon that is waht the PC has seen.
+            - so when we render the dungeon we render the remembered terrain map instead of the pc map
+            - Instructors notes:
+              ------------------
+                - Need a new map "remembered terrain", which holds our terrain which the PC has seen.
+                - The remembered terrain map is rendered by the game
+            - display like 3 unit's up, down, left, right, diagonal (ie. square line of site)
+            - dont need to remember where monsters are (causes some issues, much easier to not remember monsters)
+            - DO NOT HAVE TO UPDATE monster list
+            - 
+
+        Teleport:
+        ---------
+        - my gosh, figure this out too
+
+
+Thursday October 25, 2018:
+--------------------------
+    parsing monster descriptions:
+    -----------------------------
+        - just parse monster descriptions from a file.... EZ
+        - basically just parse data in and store it into a data structure
+        - basically the assignment is just printing shit to the console... EZ
+        professor:
+        ----------
+            - has a vector of monsters and a vector of objects
+
+    How do we parse things?
+    -----------------------
+        - ifstream - C++ way to do parsing
+            ifstream i;
+            i.peek(); // lets you look at next chatacter in the stream without removing it form the stream
+            get(); // returns and consumes the next character
+            getline(); //dur
+
+        -Example code that does basic input:
+        ------------------------------------
+                #include <iostream>
+                #include <fstream>
+                #include <string>
+                
+                using namespace std;
+
+                int main(int argc, char *argv[]){
+                    ifstream f("input_file.txt"); // input file stream
+                    int i; // use an int to go through the file, every file contains EOF which is not a character
+
+                    i = f.get();
+                    cout << i << endl; // output is the character value of l: 108 (ascii value of l)
+                    cout << (char)i << endl; // output the character: l
+
+                    cout << (char) f.get() << endl; // prints the next value in the file.
+
+                    string s;
+
+                    getline(f, s);
+                    cout << s << endl; // prints the next line
+
+                    f >> s; // basically get input until it's a space ( ie. "line")
+                    cout << s << endl; // prints "line"
+
+
+
+                    vector<int> v;
+
+                    for ( i = 0; i < 100; i++){
+                        v.push_back(i);
+                    }
+                    for( i = 0; i < 100; i++){
+                        cout << v[i] << endl;
+                    }
+
+                    vector<int>::iterator it;
+
+                    // begin() returns iterator referening first item in container
+                    // end() returns an iterator that occurs after the container (not in!)
+                    for( it = v.begin(); it != v.end(); it++ ){
+                        // overload dereference operator to get item referenced by iterator
+                        cout << *it << endl;
+                    } // basically this looks like it acts like a foreach
+
+                    cout << endl;
+
+                    for( i = 0; i < (int) v.size(); i++){
+                        cout << v[i] << " ";
+                    }
+                    cout << endl;
+
+
+                    return 0;
+                }
+
+                /* Textfile we're reading from: input_file.txt
+                ----------------------------------------------
+                line 1
+                line 2
+                line 3
+
+                line 5
+
+                line 7
+                */ 
+
+
+    Misc Notes:
+    -----------
+    unsigned char; <--\
+    signed char;   <---|---- none of these are the same thing
+    char;          <--/    
+
+
+Tuesday, October 30th 2018:
+---------------------------
+    HW 07:
+    ------
+        - parse everything as far down aslong as it's useful
+        - store colors as integers, these are in ncurses.h
+            - ex: COLOR_BLACK
+        - abilities correspond with bits in a bit vector
+            - find the value of the bit it corresponds with and OR this with whatever
+        - If there is a line that is greater than 77 characters then reject the monster
+        Prof:
+        -----
+            - create a monster description class, Create a monster description instance, store it in a vector blah blah blah
+        
+    Class Notes:
+    ------------
+        - Basically we just implemented our own version of String with operators n shit
+        - can confirm, python is better.
+        
+        
+        
+Thursday before thanksgiving
+----------------------------
+    - make nmap in c++
+    - freedom from the horrible, terrible, no good, very bad rogue-like game.
+    - he's doing a binary search tree... im ignoring this lecture because i'm just here for the Extra Credit from attendance.
+    
+    - going over throw - catch and null handling. His notes suck but they cover all of this. 
+    - didnt give extension, savage
+    
+    - he made some code to make weird functions like foo()()()()()()()()()
+    - ross hall 311 for speech meeting 
+    
+    
