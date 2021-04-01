@@ -1,8 +1,10 @@
-10/29@10:32am: Made everything CPP source
-10/29@04:15pm: Added internal framework for storing new monsters/items + types ;; added example files in ~/.rlg327 (not mirrored)
-10/30@02:03am: Added cpp-y file i/o with print out statement
-10/31@08;46pm: Added boilerplate for loading everything into the dungeon from files
-11/02@01:30am: Item parsing fully implemented ;; no printing yet
-11/02@04:08am: Item and Monster parsing fully implemented ;; no printing yet
-11/02@05:05am: Majority of printing finished, almost there!
-11/02@01:35pm: Printing completed to spec as far as was understood
+Created project folder with Schaffer's 1.06: 03/25@11:56am: Nithin
+Created Dice class and began working on parsing: 03/25@07:17pm: Camdyn
+Updated parsing method in main: 03/27@9:28am: Nithin 
+Fixed bug in parsing methods in main: 03/27@010:13pm: Syed
+Got some results to print correctly: 03/28@11:34am: Syed
+Printing functionaity works 75%: 03/28@2:26pm: Camdyn
+Finally got little kinks worked out, all scripts work as intended: 03/31@01:35pm: Camdyn
+Cleaned up code: 04/01@07:12pm: Nithin
+
+
