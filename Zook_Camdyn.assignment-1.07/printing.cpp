@@ -3,11 +3,10 @@
 #include "dungeon_generator.h"
 
 
-/* print hardness */
+
 void print_hardness(Dungeon * dungeon) {
 }
 
-/* prints heatmap */
 void print_t_heatmap(Dungeon * dungeon) {
 	int i;
 	int j;
@@ -29,7 +28,6 @@ void print_t_heatmap(Dungeon * dungeon) {
 
 }
 
-/* prints heatmap */
 void print_nont_heatmap(Dungeon * dungeon) {
 	int i;
 	int j;
@@ -51,7 +49,6 @@ void print_nont_heatmap(Dungeon * dungeon) {
 
 }
 
-/* prints the dungeon */
 void print_dungeon(Dungeon * dungeon, int nt, int t) {
 	clear();
 
@@ -65,7 +62,6 @@ void print_dungeon(Dungeon * dungeon, int nt, int t) {
 		}
 	}
 
-	/* add corridors to the print buffer */
 	for(i = 0; i < dungeon->h; i++) {
 		for(j = 0; j < dungeon->w; j++) {
 			if(dungeon->d[i][j].p == 1 || dungeon->d[i][j].c == '#' || dungeon->d[i][j].h == 0) {
@@ -74,7 +70,6 @@ void print_dungeon(Dungeon * dungeon, int nt, int t) {
 		}
 	}
 
-	/* add rooms to the print buffer */
 	for(h = 0; h < dungeon->nr; h++) {
 		for(i = getPosY(dungeon->r[h].tl); i < getPosY(dungeon->r[h].br)+1; i++) {
 			for(j = getPosX(dungeon->r[h].tl); j < getPosX(dungeon->r[h].br)+1; j++) {
@@ -86,14 +81,11 @@ void print_dungeon(Dungeon * dungeon, int nt, int t) {
 	dungeon->p[getPosY(dungeon->su)][getPosX(dungeon->su)].c = '<';
 	dungeon->p[getPosY(dungeon->sd)][getPosX(dungeon->sd)].c = '>';
 
-	/* add sprites to the print buffer */
 	for(i = 0; i < dungeon->ns; i++) {
-		//printf("%d, %d: %c speed: %d turn: %d\n", dungeon->ss[i].p.y, dungeon->ss[i].p.x, dungeon->ss[i].c, dungeon->ss[i].s.s, dungeon->ss[i].t);
 		if(getSpriteAA(dungeon->ss, i) == TRUE)
 			dungeon->p[getSpriteAPY(dungeon->ss, i)][getSpriteAPX(dungeon->ss, i)].c = getSpriteAC(dungeon->ss, i);
 	}
 
-	/* print non-tunnelling dijkstra's */
 	if(nt > 0) {
 		for(i = 0; i < dungeon->h; i++) {
 			for(j = 0; j < dungeon->w; j++) {
@@ -111,7 +103,6 @@ void print_dungeon(Dungeon * dungeon, int nt, int t) {
 		}
 	}
 
-	/* print tunnelling dijkstra's */
 	if(t > 0) {
 		for(i = 0; i < dungeon->h; i++) {
 			for(j = 0; j < dungeon->w; j++) {
@@ -129,20 +120,15 @@ void print_dungeon(Dungeon * dungeon, int nt, int t) {
 
 	updateMemory(dungeon);
 
-	/* print the print buffer */
 	for(i = 0; i < dungeon->h; i++) {
 		int j;
 		for(j = 0; j < dungeon->w; j++) {
-			//printf("%c", (dungeon->p[i][j]).c);
-            //mvaddch(i+1, j, (dungeon->p[i][j]).c);
 			mvaddch(i+1, j, getMem(dungeon, i, j));
 		}
 	}
-    //clear();
     refresh();
 }
 
-/* prints the dungeon */
 void print_dungeon_nnc(Dungeon * dungeon, int nt, int t) {
 	int i;
 	int j;
@@ -154,7 +140,6 @@ void print_dungeon_nnc(Dungeon * dungeon, int nt, int t) {
 		}
 	}
 
-	/* add corridors to the print buffer */
 	for(i = 0; i < dungeon->h; i++) {
 		for(j = 0; j < dungeon->w; j++) {
 			if(dungeon->d[i][j].p == 1 || dungeon->d[i][j].c == '#' || dungeon->d[i][j].h == 0) {
@@ -163,7 +148,6 @@ void print_dungeon_nnc(Dungeon * dungeon, int nt, int t) {
 		}
 	}
 
-	/* add rooms to the print buffer */
 	for(h = 0; h < dungeon->nr; h++) {
 		for(i = getPosY(dungeon->r[h].tl); i < getPosY(dungeon->r[h].br)+1; i++) {
 			for(j = getPosX(dungeon->r[h].tl); j < getPosX(dungeon->r[h].br)+1; j++) {
@@ -172,15 +156,11 @@ void print_dungeon_nnc(Dungeon * dungeon, int nt, int t) {
 		}
 	}
 
-	/* add sprites to the print buffer */
 	for(i = 0; i < dungeon->ns; i++) {
-		//printf("%d, %d: %c speed: %d turn: %d\n", dungeon->ss[i].p.y, dungeon->ss[i].p.x, dungeon->ss[i].c, dungeon->ss[i].s.s, dungeon->ss[i].t);
 		if(getSpriteAA(dungeon->ss, i) == TRUE)
-			//dungeon->p[dungeon->ss[i].p.y][dungeon->ss[i].p.x].c = dungeon->ss[i].c;
 			dungeon->p[getSpriteAPY(dungeon->ss, i)][getSpriteAPX(dungeon->ss, i)].c = getSpriteAC(dungeon->ss, i);
 	}
 
-	/* print non-tunnelling dijkstra's */
 	if(nt > 0) {
 		for(i = 0; i < dungeon->h; i++) {
 			for(j = 0; j < dungeon->w; j++) {
@@ -198,7 +178,6 @@ void print_dungeon_nnc(Dungeon * dungeon, int nt, int t) {
 		}
 	}
 
-	/* print tunnelling dijkstra's */
 	if(t > 0) {
 		for(i = 0; i < dungeon->h; i++) {
 			for(j = 0; j < dungeon->w; j++) {
@@ -214,7 +193,6 @@ void print_dungeon_nnc(Dungeon * dungeon, int nt, int t) {
 		}
 	}
 
-	/* print the print buffer */
 	for(i = 0; i < dungeon->h; i++) {
 		int j;
 		for(j = 0; j < dungeon->w; j++) {
