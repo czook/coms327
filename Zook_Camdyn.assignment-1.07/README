@@ -3,6 +3,4 @@ Team Members:
   * Syed Ahmad Alhussain syedal@iastate.edu
   * Nithin Sebastian nithins@iastate.edu
 
-A dungeon generator that uses Dijkstra's algorithm for pathing specific monsters and 
-random room and monster generation. There are also stairs that appear as '<' for up and '>' for down. 
-You can view monsters by pressing the 'm' key. Our parsing takes place in our 'main.cpp' file.
+In this assignment, we take the monster_desc.txt and object_desc.txt and parse data into our classes. Our parsing takes place in our 'main.cpp' file.
