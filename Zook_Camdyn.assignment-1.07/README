@@ -1,3 +1,3 @@
 A dungeon generator that uses Dijkstra's algorithm for pathing specific monsters and 
 random room and monster generation. There are also stairs that appear as '<' for up and '>' for down. 
-You can view monsters by pressing the 'm' key. Source parses definitions for template-able monsters and items from the $HOME/.rlg327 directory. 
+You can view monsters by pressing the 'm' key. Our parsing takes place in our 'main.cpp' file.
