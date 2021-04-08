@@ -18,13 +18,11 @@
 using namespace std;
 
 
-/* compare two ints used as costs ;; 0 if same, <0 if higher than key; >0 if lower than key */
 int compare_int(const void *key, const void *with) {
 	//printf("%d\n", *(const int *) key);
 	return (const int) ((*(Tile_Node *) key).cost - (*(Tile_Node *) with).cost);
 }
 
-/* returns the hardness cost of an int hardness */
 int h_calc(int h) {
 	int hc = 0;
 
@@ -626,7 +624,7 @@ Dice* getdie(std::string s)
 	return di;
 }
 
-/* parses the monsters file in ~/.rlg327 */
+
 int parsemonsters(Dungeon * dungeon) {
 	char * env_path = getenv("HOME");
 	char * path = (char*)calloc(strlen(env_path) + 50, sizeof(char));
@@ -645,7 +643,6 @@ int parsemonsters(Dungeon * dungeon) {
 		SpriteTemp b_mo;
 		SpriteTemp mo;
 		while(getline(md, line)) {
-			//cout << line << '\n';
 			
 			if(first) {
 				if(line != "RLG327 MONSTER DESCRIPTION 1") {
@@ -654,8 +651,6 @@ int parsemonsters(Dungeon * dungeon) {
 				}
 				first = false;
 			} else {
-				//standard file parsing
-				
 				size_t n = 0;
 				
 				if(line == "BEGIN MONSTER")
@@ -664,11 +659,8 @@ int parsemonsters(Dungeon * dungeon) {
 					mo.n = line.substr(5, 77);
 				else if((n = line.find("SYMB")) != std::string::npos) {
 					mo.pa = line.at(5);
-					//mo.c = 'P';
-					//cout << "SYMBOL READ" << endl;
-					//printf("SIMBUL IN SYMB: %c\n", mo.c);
+
 				} else if((n = line.find("ABIL")) != std::string::npos) {
-					//line.find statements to match abils
 					if((n = line.find("SMART")) != std::string::npos)
 						mo.s.in = true;
 					else
@@ -677,7 +669,6 @@ int parsemonsters(Dungeon * dungeon) {
 						mo.s.te = true;
 					else
 						mo.s.te = false;
-					//printf("TELE STUFF: %d", (int)n);
 					if((n = line.find("TUNNEL")) != std::string::npos)
 						mo.s.tu = true;
 					else
@@ -693,7 +684,6 @@ int parsemonsters(Dungeon * dungeon) {
 						
 					
 				} else if((n = line.find("COLOR")) != std::string::npos) {
-					//line.find statements to match enums/ints
 					if((n = line.find("RED")) != std::string::npos)
 						mo.color = RED;
 					else if((n = line.find("GREEN")) != std::string::npos)
@@ -712,11 +702,9 @@ int parsemonsters(Dungeon * dungeon) {
 						mo.color = BLACK;
 					
 				} else if((n = line.find("DAM")) != std::string::npos) {
-					//save as a die
 					mo.s.a = getdie(line.substr(4, line.size()));
 					
 				} else if((n = line.find("DESC")) != std::string::npos) {
-					//parse description
 					vector <std::string> desc;
 					
 					while(getline(md, line)) {
@@ -762,7 +750,6 @@ int parsemonsters(Dungeon * dungeon) {
 	int i = 0;
 	while(mons.size() > 0) {
 		SpriteTemp tmp = mons.back();
-		//printf("IN PARSE SYMBOL: %c\n", tmp.c);
 		dungeon->md[i] = tmp;
 		mons.pop_back();
 		i++;
@@ -771,7 +758,6 @@ int parsemonsters(Dungeon * dungeon) {
 	return 0;
 }
 
-/* parses the objects file in ~/.rlg327 */
 int parseitems(Dungeon * dungeon) {
 	char * env_path = getenv("HOME");
 	char * path = (char*)calloc(strlen(env_path) + 50, sizeof(char));
@@ -790,8 +776,7 @@ int parseitems(Dungeon * dungeon) {
 		ItemTemp b_it;
 		ItemTemp it;
 		while(getline(od, line)) {
-			//cout << line << '\n';
-			
+		
 			if(first) {
 				if(line != "RLG327 OBJECT DESCRIPTION 1") {
 					cout << "Invalid file head!" << endl;
@@ -799,7 +784,6 @@ int parseitems(Dungeon * dungeon) {
 				}
 				first = false;
 			} else {
-				//standard file parsing
 				size_t n = 0;
 				
 				if(line == "BEGIN OBJECT")
@@ -809,7 +793,6 @@ int parseitems(Dungeon * dungeon) {
 				else if((n = line.find("SYMB")) != std::string::npos)
 					it.s = (char)line.at(5);
 				else if((n = line.find("TYPE")) != std::string::npos) {
-					//line.find statements to match enums
 					if((n = line.find("WEAPON")) != std::string::npos)
 						it.t = WEAPON;
 					else if((n = line.find("OFFHAND")) != std::string::npos)
@@ -851,7 +834,6 @@ int parseitems(Dungeon * dungeon) {
 						
 					
 				} else if((n = line.find("COLOR")) != std::string::npos) {
-					//line.find statements to match enums/ints
 					if((n = line.find("RED")) != std::string::npos)
 						it.c = RED;
 					else if((n = line.find("GREEN")) != std::string::npos)
@@ -930,10 +912,6 @@ int parseitems(Dungeon * dungeon) {
 		items.pop_back();
 		i++;
 	}
-	
-	/*printf("SIZE: %d\n", di);
-	cout << "NAME: " << (dungeon->id)[0].n << endl;
-	cout << "DESC (0): " << dungeon->id[0].desc[0] << endl;*/
 	
 	return 0;
 }
