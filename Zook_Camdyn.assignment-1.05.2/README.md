@@ -1,1 +1,2 @@
 This week our dungeon_generator has been updated to be able to move the player character throughtout the dungeon. Using the keys specified in the pdf the player character can move in all the cardinal directions, as well as through the diagonals. To end the game, press "Shift q", or wait for the monster to eat the player character.
+asdf
