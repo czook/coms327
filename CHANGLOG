@@ -1,0 +1,137 @@
+57e7287 minor bug fixed
+94706e0 Update README
+d74c09f updating colors
+46c2a21 Merge pull request #18 from Nitman846/1.082
+7168d0b pushing intial changes for 1.08
+2409f18 started 1.08
+da1f2d9 added final touches
+e961937 Update README
+9cf1954 Update README
+8862a2a Update README
+f86d376 Update README
+f0a5140 Merge pull request #17 from Nitman846/ftouch
+cc2df92 ft
+834dd90 Merge pull request #16 from Nitman846/finalChanges
+78523f8 finished cleaning up code
+fcc919c Merge pull request #15 from Nitman846/1.07
+76d69c3 modified code to parse
+c2cce0a Merge pull request #14 from Nitman846/1.07
+5ff0bf2 Creating project folder
+26ed983 project 6 finished
+0dfdf9b added teleport function
+2da1a6e Updated Readme and fog of war map
+5e34392 created inheritance between npc/pc and character
+5f3c778 Merge branch 'master' of https://github.com/czook/coms327
+8937ce2 started 1.06
+2af28ea Update README
+03a7a87 updated changlog
+c2c78b7 update monster menu
+381095c merge errors?
+8122297 deleted comments
+1ce49d0 added player controls
+aa33b82 Merge pull request #13 from Nitman846/nithins
+12c5822 Adding updated code
+e79ae1d runs for now
+c1bfac5 1.04 solutions
+083b6b1 Merge pull request #12 from Nitman846/nithinss
+b776c3f Cleaned up code
+04eee3d Merge pull request #11 from Nitman846/nseb
+aca8dd1 Modidfied monsters
+28133fe Merge pull request #10 from Nitman846/nse
+577547f Finished README
+aba1d6a Merge pull request #9 from Nitman846/ns
+1f75fc8 adding changes
+615afee Merge branch 'master' of https://github.com/czook/coms327
+e62fab7 created all the methods with heaps
+5fc133e Update rlg327.h
+cc65bb1 :evert "started replacing methods"
+04ff53e started replacing methods
+25eba25 added monster.c monster.h
+c36d74c added nummon switch
+33ff7d5 Merge pull request #8 from Nitman846/nithins
+3f64c8a Created pc,npc, and character structs
+57b3036 Merge pull request #7 from Nitman846/nithinsMonsterStruct
+883c796 got rid of print
+1888cce added monster struct
+b572f2b starting of hw4
+de1c309 merge errors
+88b33d4 finished project 4
+4ade8b8 final product for assignment1.03
+625ec95 Merge pull request #6 from Nitman846/nithins
+1a63afb changed up comments and method names
+2627fb8 Merge branch 'master' of https://github.com/czook/coms327
+410c361 almost finished logic
+13278e6 Merge pull request #5 from Nitman846/1.03
+0b88198 Merge pull request #2 from Nitman846/1.03
+7814a27 Added methods Schaffer said to, will need some tweaking
+6878b31 Merge pull request #1 from czook/master
+234baad working starting point
+6bcaf28 Staring 3
+4fee7b5 Merge branch 'master' of https://github.com/czook/coms327
+e71503b Starting project 3
+d9c8542 Create README.md
+1134819 nithin
+38bf7e1 fixed merged errors
+aaf9970 pair programing
+804837f worked on write
+6d74236 asdf
+ab48638 fixed error with running on Windows
+a04a2cf fixing bugs in readFile
+a3770fd Merge pull request #4 from Nitman846/nithins
+67d4765 Added my changes
+5561de7 readfile done?
+12f8ca4 updating readFile to add every value from the table
+6ef9244 Merge branch 'master' of https://github.com/czook/coms327
+ad30936 test
+a4bccb9 more updates
+cdde8bf getting started on HW2
+9bc706d started the save_load.c file
+2800d7b Revert "class notes"
+80ef400 class notes
+5b3990c found out that his solution deals with heaps
+ab7e6d9 created assignment 1.02 folder
+5cfa29c fixed bugs
+9aefff5 found errors
+efdef96 last minute adjustments
+88f0cd0 updated README.md and CHANGELOG.md
+22ef92e updated makefile and made header file
+24e0018 added stairs
+a3c1950 updated overlapChecker()
+689edda updated hallways
+4015084 added Hallways
+cfc8433 fixed merge errors
+ddd309a Places rooms with spaces inbetween
+ed6bd1e reUpdated Make file
+955809a bug fixes
+0fecfd0 fixed overlap
+f47d83d added comments
+b4a2d3e now randomly generates rooms
+81a72e9 Merge branch 'master' of https://github.com/czook/coms327
+c14dd95 aha ha
+e10ed7d updated makefile
+d0d4d05 Created border of game board
+a35ee7b Added Assignment1.01 folder and starting files
+8b1e348 made a tar.gz
+3963f25 Update README.md
+ca13bd0 Update README.md
+d88723c Create CHANGELOG.md
+69af9fe Create CHANGELOG.md
+ff517bd fixed bugs and added header to makefile
+175a9f2 simple makefile
+5ca6213 removed stackdump
+bfa43e1 updated for sandpile.h
+42db8da README.md file change
+28fc32d Merge remote-tracking branch 'origin/Nitman846-patch-2'
+79a083d Update README.txt
+4e40f8b Create README.txt
+b631f3e Create sandpile.h
+20b2a33 added the fps
+00892b7 Working program :)
+d12b1cb still random stopping bug
+d204d2e recursive method isn't working
+895c66a shit on shit on shit
+761c7bb more work
+a0b2d2f no errors
+e728378 work shit
+b3c9cf5 hello world
+65220f9 first commit

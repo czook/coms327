@@ -8,7 +8,7 @@ commit 2da1a6e
 Author: Camdyn Zook <czook@iastate.edu>
 Date:   Wed Mar 24 12:40:07 2021 -0500
 
-    Updated Readme and fog of war map
+    Updated Readme and fog of wqar map
 
 commit 5e34392
 Author: Camdyn Zook <czook@iastate.edu>
