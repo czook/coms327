@@ -1,9 +1,7 @@
-Allen Roberts
+Team Members:
+  * Camdyn Zook czook@iastate.edu
+  * Syed Ahmad Alhussain syedal@iastate.edu
+  * Nithin Sebastian nithins@iastate.edu
 
-Added menu's like instructed in the assignment.
-Had difficulty with making them so I looked at a handful of solutions
-on GitHub and found some that I thought were good and implemented them.
-
-Didn't know how to handle picking up objects so again, went to GitHub,
-found a bunch of solutions and implemented based on what I found. Everything
-works as instructed. 
+In this assignment, we allow for the player character to have hitpoints and the ability to take damage. We also wrote code to allow a pc
+to have slots to hold equipment. We have also updated the rules for combat between npcs and pc's.
