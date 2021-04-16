@@ -3,4 +3,5 @@ Team Members:
   * Syed Ahmad Alhussain syedal@iastate.edu
   * Nithin Sebastian nithins@iastate.edu
 
-In this assignment, we take the monster_desc.txt and object_desc.txt and parse data into our classes. Our parsing takes place in our 'main.cpp' file.
+In this assignment, we allow for the player character to have hitpoints and the ability to take damage. We also wrote code to allow a pc
+to have slots to hold equipment. We have also updated the rules for combat between npcs and pc's.
