@@ -161,9 +161,7 @@ static void dijkstra_corridor(dungeon *d, pair_t from, pair_t to)
   }
 }
 
-/* This is a cut-and-paste of the above.  The code is modified to  *
- * calculate paths based on inverse hardnesses so that we get a    *
- * high probability of creating at least one cycle in the dungeon. */
+
 static void dijkstra_corridor_inv(dungeon *d, pair_t from, pair_t to)
 {
   static corridor_path_t path[DUNGEON_Y][DUNGEON_X], *p;
@@ -284,9 +282,7 @@ static void dijkstra_corridor_inv(dungeon *d, pair_t from, pair_t to)
   }
 }
 
-/* Chooses a random point inside each room and connects them with a *
- * corridor.  Random internal points prevent corridors from exiting *
- * rooms in predictable locations.                                  */
+
 static int connect_two_rooms(dungeon *d, room_t *r1, room_t *r2)
 {
   pair_t e1, e2;
@@ -300,7 +296,6 @@ static int connect_two_rooms(dungeon *d, room_t *r1, room_t *r2)
   e2[dim_x] = rand_range(r2->position[dim_x],
                          r2->position[dim_x] + r2->size[dim_x] - 1);
 
-  /*  return connect_two_points_recursive(d, e1, e2);*/
   dijkstra_corridor(d, e1, e2);
 
   return 0;
@@ -308,9 +303,6 @@ static int connect_two_rooms(dungeon *d, room_t *r1, room_t *r2)
 
 static int create_cycle(dungeon *d)
 {
-  /* Find the (approximately) farthest two rooms, then connect *
-   * them by the shortest path using inverted hardnesses.      */
-
   uint32_t max, tmp, i, j, p, q;
   pair_t e1, e2;
 
@@ -331,8 +323,6 @@ static int create_cycle(dungeon *d)
     }
   }
 
-  /* Can't simply call connect_two_rooms() because it doesn't *
-   * use inverse hardnesses, so duplicate it here.            */
   e1[dim_y] = rand_range(d->rooms[p].position[dim_y],
                          (d->rooms[p].position[dim_y] +
                           d->rooms[p].size[dim_y] - 1));
@@ -390,7 +380,6 @@ static int smooth_hardness(dungeon *d)
 
   memset(&hardness, 0, sizeof(hardness));
 
-  /* Seed with some values */
   for (i = 1; i < 255; i += 20)
   {
     do
@@ -420,7 +409,6 @@ static int smooth_hardness(dungeon *d)
   fclose(out);
 #endif
 
-  /* Diffuse the vaules to fill the space */
   while (head)
   {
     x = head->x;
@@ -505,7 +493,6 @@ static int smooth_hardness(dungeon *d)
     free(tmp);
   }
 
-  /* And smooth it a bit with a gaussian convolution */
   for (y = 0; y < DUNGEON_Y; y++)
   {
     for (x = 0; x < DUNGEON_X; x++)
@@ -525,7 +512,7 @@ static int smooth_hardness(dungeon *d)
       d->hardness[y][x] = t / s;
     }
   }
-  /* Let's do it again, until it's smooth like Kenny G. */
+
   for (y = 0; y < DUNGEON_Y; y++)
   {
     for (x = 0; x < DUNGEON_X; x++)
@@ -733,7 +720,7 @@ int write_rooms(dungeon *d, FILE *f)
 
   for (i = 0; i < d->num_rooms; i++)
   {
-    /* write order is xpos, ypos, width, height */
+
     p = d->rooms[i].position[dim_x];
     fwrite(&p, 1, 1, f);
     p = d->rooms[i].position[dim_y];
@@ -749,9 +736,9 @@ int write_rooms(dungeon *d, FILE *f)
 
 uint32_t calculate_dungeon_size(dungeon *d)
 {
-  return (22 /* The semantic, version, size, and PC position*/ +
-          (DUNGEON_X * DUNGEON_Y) /* The hardnesses         */ +
-          (d->num_rooms * 4) /* Four bytes per room         */);
+  return (22  +
+          (DUNGEON_X * DUNGEON_Y)  +
+          (d->num_rooms * 4) );
 }
 
 int write_dungeon(dungeon *d, char *file)
@@ -772,8 +759,8 @@ int write_dungeon(dungeon *d, char *file)
     }
 
     len = (strlen(home) + strlen(SAVE_DIR) + strlen(DUNGEON_SAVE_FILE) +
-           1 /* The NULL terminator */ +
-           2 /* The slashes */);
+           1  +
+           2 );
 
     filename = (char *)malloc(len * sizeof(*filename));
     sprintf(filename, "%s/%s/", home, SAVE_DIR);
@@ -798,27 +785,27 @@ int write_dungeon(dungeon *d, char *file)
     }
   }
 
-  /* The semantic, which is 6 bytes, 0-11 */
+  
   fwrite(DUNGEON_SAVE_SEMANTIC, 1, sizeof(DUNGEON_SAVE_SEMANTIC) - 1, f);
 
-  /* The version, 4 bytes, 12-15 */
+
   be32 = htobe32(DUNGEON_SAVE_VERSION);
   fwrite(&be32, sizeof(be32), 1, f);
 
-  /* The size of the file, 4 bytes, 16-19 */
+  
   be32 = htobe32(calculate_dungeon_size(d));
   fwrite(&be32, sizeof(be32), 1, f);
 
-  /* The PC position, 2 bytes, 20-21 */
+  
   i = d->PC->position[dim_x];
   fwrite(&i, 1, 1, f);
   i = d->PC->position[dim_y];
   fwrite(&i, 1, 1, f);
 
-  /* The dungeon map, 1680 bytes, 22-1702 */
+  
   write_dungeon_map(d, f);
 
-  /* And the rooms, num_rooms * 4 bytes, 1703-end */
+  
   write_rooms(d, f);
 
   fclose(f);
@@ -837,8 +824,6 @@ int read_dungeon_map(dungeon *d, FILE *f)
       fread(&d->hardness[y][x], sizeof(d->hardness[y][x]), 1, f);
       if (d->hardness[y][x] == 0)
       {
-        /* Mark it as a corridor.  We can't recognize room cells until *
-         * after we've read the room array, which we haven't done yet. */
         d->map[y][x] = ter_floor_hall;
       }
       else if (d->hardness[y][x] == 255)
@@ -896,7 +881,6 @@ int read_rooms(dungeon *d, FILE *f)
       exit(-1);
     }
 
-    /* After reading each room, we need to reconstruct them in the dungeon. */
     for (y = d->rooms[i].position[dim_y];
          y < d->rooms[i].position[dim_y] + d->rooms[i].size[dim_y];
          y++)
@@ -916,9 +900,9 @@ int read_rooms(dungeon *d, FILE *f)
 int calculate_num_rooms(uint32_t dungeon_bytes)
 {
   return ((dungeon_bytes -
-           (20 /* The semantic, version, and size */ +
-            (DUNGEON_X * DUNGEON_Y) /* The hardnesses */)) /
-          4 /* Four bytes per room */);
+           (20  +
+            (DUNGEON_X * DUNGEON_Y) )) /
+          4 );
 }
 
 int read_dungeon(dungeon *d, char *file)
@@ -941,8 +925,8 @@ int read_dungeon(dungeon *d, char *file)
     }
 
     len = (strlen(home) + strlen(SAVE_DIR) + strlen(DUNGEON_SAVE_FILE) +
-           1 /* The NULL terminator */ +
-           2 /* The slashes */);
+           1  +
+           2 );
 
     filename = (char *)malloc(len * sizeof(*filename));
     sprintf(filename, "%s/%s/%s", home, SAVE_DIR, DUNGEON_SAVE_FILE);
@@ -988,7 +972,7 @@ int read_dungeon(dungeon *d, char *file)
   }
   fread(&be32, sizeof(be32), 1, f);
   if (be32toh(be32) != 0)
-  { /* Since we expect zero, be32toh() is a no-op. */
+  { 
     fprintf(stderr, "File version mismatch.\n");
     exit(-1);
   }
@@ -1021,7 +1005,7 @@ int read_pgm(dungeon *d, char *pgm)
   uint8_t gm[DUNGEON_Y - 2][DUNGEON_X - 2];
   uint32_t x, y;
   uint32_t i;
-  char size[8]; /* Big enough to hold two 3-digit values with a space between. */
+  char size[8]; 
 
   if (!(f = fopen(pgm, "r")))
   {
@@ -1055,10 +1039,6 @@ int read_pgm(dungeon *d, char *pgm)
 
   fclose(f);
 
-  /* In our gray map, treat black (0) as corridor, white (255) as room, *
-   * all other values as a hardness.  For simplicity, treat every white *
-   * cell as its own room, so we have to count white after reading the  *
-   * image in order to allocate the room array.                         */
   for (d->num_rooms = 0, y = 0; y < DUNGEON_Y - 2; y++)
   {
     for (x = 0; x < DUNGEON_X - 2; x++)
@@ -1118,8 +1098,7 @@ int read_pgm(dungeon *d, char *pgm)
 
 void render_hardness_map(dungeon *d)
 {
-  /* The hardness map includes coordinates, since it's larger *
-   * size makes it more difficult to index a position by eye. */
+  
 
   pair_t p;
   int i;
