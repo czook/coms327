@@ -3,4 +3,6 @@ Team Members:
   * Syed Ahmad Alhussain syedal@iastate.edu
   * Nithin Sebastian nithins@iastate.edu
 
-In this assignment, we implemented ranged attacks. These can be initiated by utilizing the 's' command, and if you would like to make this automatic, you can utilize the 'a' command. 
+In this assignment, we implemented ranged attacks. These can be initiated by utilizing the 's' command, and if you would like to make this automatic, you can utilize the 'a' command.
+Also, monsters can be viewed by utilizing the 'm' key. Source is stored in C++ source files and can parse definitions for monsters in the $HOME/.rlg327 directory. 
+In addition, colors are parsed for both monsters and objects.
