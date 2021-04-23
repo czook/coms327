@@ -18,13 +18,10 @@
 using namespace std;
 
 
-/* compare two ints used as costs ;; 0 if same, <0 if higher than key; >0 if lower than key */
 int compare_int(const void *key, const void *with) {
-	//printf("%d\n", *(const int *) key);
 	return (const int) ((*(Tile_Node *) key).cost - (*(Tile_Node *) with).cost);
 }
 
-/* returns the hardness cost of an int hardness */
 int h_calc(int h) {
 	int hc = 0;
 
@@ -41,7 +38,6 @@ int h_calc(int h) {
 	return hc;
 }
 
-/* djikstra's take 2; with tunnelling */
 void map_dungeon_t(Dungeon * dungeon) {
 	binheap_t h;
 	Tile_Node tiles[dungeon->h][dungeon->w];
@@ -55,7 +51,6 @@ void map_dungeon_t(Dungeon * dungeon) {
 	int i;
 	int j;
 
-	/* set all indices and insert the default values */
 	for(i = 0; i < dungeon->h; i++) {
 		for(j = 0; j < dungeon->w; j++) {
 			tiles[i][j].y = i;
@@ -65,9 +60,7 @@ void map_dungeon_t(Dungeon * dungeon) {
 		}
 	}
 
-	/* set the player's cost as 0: */
-	//int px = dungeon->ss[dungeon->pc].p.x;
-	//int py = dungeon->ss[dungeon->pc].p.y;
+
 	int px = getSpriteAPX(dungeon->ss, dungeon->pc);
 	int py = getSpriteAPY(dungeon->ss, dungeon->pc);
 
@@ -75,7 +68,6 @@ void map_dungeon_t(Dungeon * dungeon) {
 	tiles[py][px].v = TRUE;
 	binheap_insert(&h, &tiles[py][px]);
 
-	/* primary cost calculation logic */
 
 	binheap_node_t	*p;
 
@@ -103,7 +95,6 @@ void map_dungeon_t(Dungeon * dungeon) {
 		}
 	}
 
-	/* copy the heatmap to the dungeon */
 	for(i = 0; i < dungeon->h; i++) {
 		for(j = 0; j < dungeon->w; j++) {
 			dungeon->cst[i][j] = tiles[i][j].cost;
@@ -111,11 +102,9 @@ void map_dungeon_t(Dungeon * dungeon) {
 	}
 
 
-	/* clean up the heap */
 	binheap_delete(&h);
 }
 
-/* djikstra's take 2 */
 void map_dungeon_nont(Dungeon * dungeon) {
 	binheap_t h;
 	Tile_Node tiles[dungeon->h][dungeon->w];
@@ -129,7 +118,6 @@ void map_dungeon_nont(Dungeon * dungeon) {
 	int i;
 	int j;
 
-	/* set all indices and insert the default values */
 	for(i = 0; i < dungeon->h; i++) {
 		for(j = 0; j < dungeon->w; j++) {
 			tiles[i][j].y = i;
@@ -139,9 +127,7 @@ void map_dungeon_nont(Dungeon * dungeon) {
 		}
 	}
 
-	/* set the player's cost as 0: */
-	//int px = dungeon->ss[dungeon->pc].p.x;
-	//int py = dungeon->ss[dungeon->pc].p.y;
+	
 	int px = getSpriteAPX(dungeon->ss, dungeon->pc);
 	int py = getSpriteAPY(dungeon->ss, dungeon->pc);
 
@@ -149,7 +135,6 @@ void map_dungeon_nont(Dungeon * dungeon) {
 	tiles[py][px].v = TRUE;
 	binheap_insert(&h, &tiles[py][px]);
 
-	/* primary cost calculation logic */
 
 	binheap_node_t	*p;
 
@@ -178,7 +163,6 @@ void map_dungeon_nont(Dungeon * dungeon) {
 
 	}
 
-	/* copy the heatmap to the dungeon */
 	for(i = 0; i < dungeon->h; i++) {
 		for(j = 0; j < dungeon->w; j++) {
 			dungeon->csnt[i][j] = tiles[i][j].cost;
@@ -186,11 +170,9 @@ void map_dungeon_nont(Dungeon * dungeon) {
 	}
 
 
-	/* clean up the heap */
 	binheap_delete(&h);
 }
 
-/* reads from a dungeon file */
 void read_dungeon(Dungeon * dungeon, char * path) {
 	FILE * file;
 	file = fopen(path, "rb+");
@@ -199,12 +181,10 @@ void read_dungeon(Dungeon * dungeon, char * path) {
         exit(1);
 	}
 
-	/* read the file-type marker */
 	fseek(file, 0, SEEK_SET);
 	char marker[6];
 	fread(marker, 1, 6, file);
 
-	/* read the file version marker */
 	fseek(file, 6, SEEK_SET);
 	uint32_t file_version;
 	uint32_t file_version_be;
@@ -212,7 +192,6 @@ void read_dungeon(Dungeon * dungeon, char * path) {
 	file_version = be32toh(file_version_be);
 	dungeon->v = file_version;
 
-	/* read the size of file */
 	fseek(file, 10, SEEK_SET);
 	uint32_t size;
 	uint32_t size_be;
@@ -220,7 +199,6 @@ void read_dungeon(Dungeon * dungeon, char * path) {
 	size = be32toh(size_be);
 	dungeon->s = size;
 
-	/* read the hardness values in */
 	fseek(file, 14, SEEK_SET);
 	int i;
 	int j;
@@ -234,14 +212,11 @@ void read_dungeon(Dungeon * dungeon, char * path) {
 		}
 	}
 
-	/* read in rooms in dungeon */
 	fseek(file, 1694, SEEK_SET);
-	/* might want to make this just counted in 4's by the loop below, but w/e, math, amirite? */
 	int room_i = 0;
 	int room_count = (size - 1693) / 4;
 	dungeon->nr = room_count;
 	dungeon->r = (Room*)calloc(room_count, sizeof(Room));
-	/* could probably be replaced with a getpos() call for complete-ness */
 	int pos;
 	for(pos = 1694; pos < (int)size; pos += 4) {
 		int x_8;
@@ -253,12 +228,7 @@ void read_dungeon(Dungeon * dungeon, char * path) {
 		fread(&y_8, sizeof(int8_t), 1, file);
 		fread(&h_8, sizeof(int8_t), 1, file);
 
-		//dungeon->r[room_i].tl.x = (int8_t) x_8;
-		//dungeon->r[room_i].w = (int8_t) w_8;
-		//dungeon->r[room_i].tl.y = (int8_t) y_8;
-		//dungeon->r[room_i].h = (int8_t) h_8;
-		//dungeon->r[room_i].br.x = ((int8_t) x_8) + dungeon->r[room_i].w-1;
-		//dungeon->r[room_i].br.y = ((int8_t) y_8) + dungeon->r[room_i].h-1;
+		
 		setPosX(dungeon->r[room_i].tl, (int8_t) x_8);
 		dungeon->r[room_i].w = (int8_t) w_8;
 		setPosY(dungeon->r[room_i].tl, (int8_t) y_8);
@@ -272,8 +242,6 @@ void read_dungeon(Dungeon * dungeon, char * path) {
 	}
 
 
-	/* populate the rooms and corridors if not in rooms */
-	/* add rooms to the dungeon buffer */
 	int h;
 	for(h = 0; h < dungeon->nr; h++) {
 		for(i = getPosY(dungeon->r[h].tl); i < getPosY(dungeon->r[h].br)+1; i++) {
@@ -283,7 +251,6 @@ void read_dungeon(Dungeon * dungeon, char * path) {
 		}
 	}
 
-	/* add corridors to the dungeon buffer */
 	for(i = 0; i < dungeon->h; i++) {
 		for(j = 0; j < dungeon->w; j++) {
 			if(dungeon->d[i][j].c != '.' && dungeon->d[i][j].h == 0) {
@@ -297,18 +264,15 @@ void read_dungeon(Dungeon * dungeon, char * path) {
 	fclose(file);
 }
 
-/* writes the dungeon file to ~/.rlg327/dungeon */
 void write_dungeon(Dungeon * dungeon, char * path) {
 	FILE * file;
 
-	/* folder creation logic */
 	char * env_home = getenv("HOME");
 	char * fdir_path;
 	fdir_path = (char*)calloc(strlen(env_home) + 9, sizeof(char));
 	strcpy(fdir_path, env_home);
 	strcat(fdir_path, "/.rlg327");
 	mkdir(fdir_path, S_IRWXU);
-	/* mkdir will return -1 when it fails, but it will fail if the file exists so it doesn't especially matter to catch it as no output would be provided */
 
 
 	file = fopen(path, "wb+");
@@ -317,25 +281,20 @@ void write_dungeon(Dungeon * dungeon, char * path) {
         exit(1);
 	}
 
-	/* write the file-type marker */
 	fseek(file, 0, SEEK_SET);
 	char marker[7];
 	strcpy(marker, "RLG327");
 	fwrite(marker, sizeof(char), 6, file);
 
-	/* write the file version marker */
 	fseek(file, 6, SEEK_SET);
 	uint32_t file_version = 0;
 	uint32_t file_version_be = htobe32(file_version);
 	fwrite(&file_version_be, sizeof(uint32_t), 1, file);
-
-	/* write the size of the file ;; unsure how to properly calculate */
 	fseek(file, 10, SEEK_SET);
  	uint32_t size = 1693 + (4 * dungeon->nr);
 	uint32_t size_be = htobe32(size);
 	fwrite(&size_be, sizeof(uint32_t), 1, file);
 
-	/* row-major dungeon matrix */
 	fseek(file, 14, SEEK_SET);
 	int pos = 14;
 	int i;
@@ -351,7 +310,6 @@ void write_dungeon(Dungeon * dungeon, char * path) {
 		}
 	}
 
-	/* room positions ;; 4 bytes per room */
 	fseek(file, 1694, SEEK_SET);
 	for(i = 0; i < dungeon->nr; i++) {
 		int8_t x = (int8_t) getPosX(dungeon->r[i].tl);
@@ -369,7 +327,6 @@ void write_dungeon(Dungeon * dungeon, char * path) {
 	fclose(file);
 }
 
-/* parses commandline arguments */
 void test_args(int argc, char ** argv, int here, int * s, int * l, int *p, int *cp, int *nm, int *nnc) {
 		if(strcmp(argv[here], "--save") == 0) {
 			*s = TRUE;
@@ -389,19 +346,16 @@ void test_args(int argc, char ** argv, int here, int * s, int * l, int *p, int *
 		}
 }
 
-/* monster list view */
 void monster_list(Dungeon * dungeon) {
 	clear();
 
-	/* monster view array and population */
 	char mons [dungeon->ns-1][30];
 	int i;
 	for(i = 1; i < dungeon->ns; i++) {
 		char ns[6];
 		char ew[5];
 
-		//int hd = dungeon->ss[0].p.y - dungeon->ss[i].p.y;
-		//int wd = dungeon->ss[0].p.x - dungeon->ss[i].p.x;
+		
 		int hd = getSpriteAPY(dungeon->ss, 0) - getSpriteAPY(dungeon->ss, i);
 		int wd = getSpriteAPX(dungeon->ss, 0) - getSpriteAPX(dungeon->ss, i);
 
@@ -419,7 +373,6 @@ void monster_list(Dungeon * dungeon) {
 			sprintf(mons[i-1], "%c, %2d %s and %2d %s", getSpriteAC(dungeon->ss, i), abs(hd), ns, abs(wd), ew);
 	}
 
-	/* secondary window */
 	WINDOW *w;
 	w = newwin(24, 80, 0, 0);
 	Bool scroll = FALSE;
@@ -434,12 +387,10 @@ void monster_list(Dungeon * dungeon) {
 
 	int j;
 	for(;;) {
-		/* put the monster view to the screen */
 		for(i = top, j = 0; i < dungeon->ns -1 && i <= bot && j < 24; i++, j++) {
 			mvprintw(j, 0, mons[i]);
 		}
 
-		/* handle user interaction */
 		MLV: ;
 		int32_t k;
 		k = getch();
@@ -484,7 +435,6 @@ void monster_list(Dungeon * dungeon) {
 	print_dungeon(dungeon, 0, 0);
 }
 
-/* inventory list view */
 void inventory_list(Dungeon * dungeon, bool is_equip) {
 	clear();
 
@@ -500,9 +450,7 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 
 	char scr [l][70];
 
-	/* inventory view array and population */
 	for(i = 0; i < l; i++, c++) {
-		/* equip or inv view */
 		if(is_equip)
 			if(dungeon->plyr->eqsp[i])
 				sprintf(scr[i], "%c: %s", c, dungeon->plyr->eqs[i].n.c_str());
@@ -515,19 +463,16 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 				sprintf(scr[i], "%c: ", c);
 	}
 
-	/* secondary window */
 	WINDOW *w;
 	w = newwin(24, 80, 0, 0);
 
 	int j;
 	for(;;) {
-		/* put the inventory view to the screen */
 		for(i = 0, j = 0; i < l && j < 24; i++, j++) {
 			mvprintw(j, 0, scr[i]);
 		}
 		refresh();
 
-		/* handle user interaction */
 		MLV: ;
 		int32_t k;
 		int index;
@@ -536,7 +481,6 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 
 		switch(k) {
 			case 'w':
-			/* wear */
 				WR: ;
 				//32 long
 				mvprintw(15, 0, "Which inventory item to wear?: ");
@@ -549,7 +493,6 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 				if(k < 48 || k > 57)
 					goto WR;
 				index = k - 48;
-				//check if item occupied eqp slot and equippable
 				if(dungeon->plyr->inv[index].t >= NONEQUIP)
 					goto INV;
 
@@ -567,9 +510,7 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 				goto INV;
 				break;
 			case 't':
-			/* take off */
 				TO: ;
-				//incl "to" len is 35 total ;; 23 as of "to"
 				mvprintw(15, 0, "Which inventory item to take off?: ");
 				refresh();
 				k = getch();
@@ -580,7 +521,6 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 				if(k < 97 || k > 108)
 					goto TO;
 				index = k - 97;
-				//take them clothes off
 				dungeon->plyr->eqsp[index] = false;
 				to_move = -1;
 				for(i = 0; i < 10; i++)
@@ -600,9 +540,7 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 
 				break;
 			case 'd':
-			/* drop */
 				DP: ;
-				//32 long
 				mvprintw(15, 0, "Which inventory item to drop?: ");
 				refresh();
 				k = getch();
@@ -613,7 +551,6 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 				if(k < 48 || k > 57)
 					goto DP;
 				index = k - 48;
-				//drop it like it's hot
 				dungeon->plyr->invp[index] = false;
 				dungeon->nit++;
 				dungeon->items[dungeon->nit-1] = dungeon->plyr->inv[index];
@@ -624,9 +561,7 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 
 				break;
 			case 'x':
-			/* expunge */
 				EE: ;
-				//36 long
 				mvprintw(15, 0, "Which inventory item to expunge?: ");
 				refresh();
 				k = getch();
@@ -637,17 +572,13 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 				if(k < 48 || k > 57)
 					goto EE;
 				index = k - 48;
-				//exterminatus
 				dungeon->plyr->invp[index] = false;
 				clear();
 				goto INV;
 
 				break;
 			case 'I':
-			/* inspect */
-			//new window and all that
 				IT: ;
-				//36 long
 				mvprintw(15, 0, "Which inventory item to inspect?: ");
 				refresh();
 				k = getch();
@@ -658,7 +589,6 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 				if(k < 48 || k > 57)
 					goto IT;
 				index = k - 48;
-				//look very closely
 				clear();
 				for(i = 0; i < dungeon->plyr->inv[index].dl; i++)
 				{
@@ -671,7 +601,6 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 
 				break;
 			case 27:
-				/* ESC */
 				return;
 				break;
 			default:
@@ -686,7 +615,6 @@ void inventory_list(Dungeon * dungeon, bool is_equip) {
 	print_dungeon(dungeon, 0, 0);
 }
 
-/* processes pc movements ;; validity checking is in monsters.c's gen_move_sprite() */
 void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
 	GCH: ;
 	int32_t k;
@@ -766,12 +694,10 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
 			goto B;
 			break;
 		case '<':
-			/* stair up */
 			if(dungeon->plyr->p.x == getPosX(dungeon->su) && dungeon->plyr->p.y == getPosY(dungeon->su))
 				*regen = TRUE;
 			break;
 		case '>':
-			/* stair down */
 			if(dungeon->plyr->p.x == getPosX(dungeon->sd) && dungeon->plyr->p.y == getPosY(dungeon->sd))
 				*regen = TRUE;
 			break;
@@ -792,10 +718,8 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
 			print_dungeon(dungeon, 0, 0);
 			goto GCH;
 		case 'a':
-			/* auto attack (ranged) ;; only uses basic equipped weapon */
 			if(dungeon->plyr->eqsp[RANGED]) {
 				if(dungeon->plyr->hlt) {
-					//clean up line of sight/hitting the enemy
 					if(dungeon->ss[dungeon->plyr->lt].a && (dungeon->ss[dungeon->plyr->lt].p.x == dungeon->plyr->p.x || dungeon->ss[dungeon->plyr->lt].p.y == dungeon->plyr->p.y)) {
 
 						int dam = 0;
@@ -806,7 +730,6 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
     							dam += dungeon->plyr->eqs[i].hib;
     					}
 
-						//apply damage
     					if(dungeon->ss[dungeon->plyr->lt].s.hp - dam <= 0)
     						dungeon->ss[dungeon->plyr->lt].a = false;
     					else
@@ -816,7 +739,6 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
 			}
 			break;
 		case 's':
-			/* select target (for ranged attack) ;; parses further selection and distance/calculations */
 			
 			mvprintw(0, 0, "What direction [n, e, s, w] do you wish to fire?: ");
 			
@@ -827,13 +749,10 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
 			dist = getch();
 			distance = dist - 48;
 			
-			//mvprintw(2, 0, "%d %c", distance, dir);
 			
-			//see if we hit a target
 			target = -1;
 			for(l = 1; l < dungeon->ns; l++)
 			{
-				//lazy and goto's are hard
 				int tx = dungeon->plyr->p.x;
 				int ty = dungeon->plyr->p.y;
 				if(dir == 'n')
@@ -851,7 +770,6 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
 				if(dungeon->ss[l].lp.x == tx && dungeon->ss[l].lp.y == ty)
 					target = l;
 					
-				//mvprintw(3, 0, "%d %d", tx, ty);
 					
 				tx = dungeon->ss[0].p.x;
 				ty = dungeon->ss[0].p.y;
@@ -867,15 +785,9 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
 				if((dungeon->ss[l].p.x == tx && dungeon->ss[l].p.y == ty) || (dungeon->ss[l].to.x == tx && dungeon->ss[l].p.y == ty))
 					target = l;
 					
-				//mvprintw(4, 0, "%d %d", tx, ty);
 				
-				//mvprintw(6+l-1, 0, "%d %d", dungeon->ss[l].p.x, dungeon->ss[l].p.y);
-				//mvprintw(11+l-1, 0, "%d %d", dungeon->ss[l].lp.x, dungeon->ss[l].lp.y);
-								
-				//mvprintw(23, 0, "%d %d", dungeon->ss[0].p.x, dungeon->ss[0].p.y);
 			}
 			
-			//mvprintw(2, 0, "%d %c %d", distance, dir, target);
 			
 			if(dungeon->plyr->eqsp[RANGED] == false) {
 				mvprintw(0, 0, "You possess no ranged weapon                                     ");
@@ -885,7 +797,6 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
 			}
 			
 			if(target > 0) {
-				//clean up line of sight/hitting the enemy
 				if(dungeon->ss[target].a && (dungeon->ss[target].p.x == dungeon->plyr->p.x || dungeon->ss[target].p.y == dungeon->plyr->p.y)) {
 
 					int dam = 0;
@@ -896,7 +807,6 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
 							dam += dungeon->plyr->eqs[i].hib;
 					}
 
-					//apply damage
 					if(dungeon->ss[target].s.hp - dam <= 0)
 						dungeon->ss[target].a = false;
 					else
@@ -924,7 +834,6 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
     int i;
     bool combat = false;
     int targ = -1;
-    /* movement validity check */
 	if(dungeon->d[dungeon->plyr->to.y][dungeon->plyr->to.x].h > 0) {
 		dungeon->plyr->to.x = dungeon->plyr->p.x;
 		dungeon->plyr->to.y = dungeon->plyr->p.y;
@@ -966,14 +875,12 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
     			break;
     		}
     	}
-    	//apply damage
     	if(dungeon->ss[targ].s.hp - dam <= 0)
     		dungeon->ss[targ].a = false;
     	else
     		dungeon->ss[targ].s.hp -= dam;
     }
 
-    /* check for picking up an item */
     int j;
 	int inv_loc = -1;
     for(j = 0; j < 10; j++)
@@ -990,7 +897,6 @@ void parse_pc(Dungeon * dungeon, Bool * run, Bool * regen) {
     			dungeon->plyr->inv[inv_loc] = dungeon->items[i];
     			dungeon->plyr->invp[inv_loc] = true;
 
-    			//remove i from the dungeon
     			j = i;
     			for(; j < dungeon->nit - 1; j++)
     			{
@@ -1022,7 +928,6 @@ Dice* getdie(std::string s)
 	return di;
 }
 
-/* parses the monsters file in ~/.rlg327 */
 int parsemonsters(Dungeon * dungeon) {
 	char * env_path = getenv("HOME");
 	char * path = (char*)calloc(strlen(env_path) + 50, sizeof(char));
@@ -1041,7 +946,6 @@ int parsemonsters(Dungeon * dungeon) {
 		SpriteTemp b_mo;
 		SpriteTemp mo;
 		while(getline(md, line)) {
-			//cout << line << '\n';
 
 			if(first) {
 				if(line != "RLG327 MONSTER DESCRIPTION 1") {
@@ -1050,7 +954,6 @@ int parsemonsters(Dungeon * dungeon) {
 				}
 				first = false;
 			} else {
-				//standard file parsing
 
 				size_t n = 0;
 
@@ -1060,11 +963,8 @@ int parsemonsters(Dungeon * dungeon) {
 					mo.n = line.substr(5, 77);
 				else if((n = line.find("SYMB")) != std::string::npos) {
 					mo.pa = line.at(5);
-					//mo.c = 'P';
-					//cout << "SYMBOL READ" << endl;
-					//printf("SIMBUL IN SYMB: %c\n", mo.c);
+					
 				} else if((n = line.find("ABIL")) != std::string::npos) {
-					//line.find statements to match abils
 					if((n = line.find("SMART")) != std::string::npos)
 						mo.s.in = true;
 					else
@@ -1089,7 +989,6 @@ int parsemonsters(Dungeon * dungeon) {
 
 
 				} else if((n = line.find("COLOR")) != std::string::npos) {
-					//line.find statements to match enums/ints
 					if((n = line.find("RED")) != std::string::npos)
 						mo.color = RED;
 					else if((n = line.find("GREEN")) != std::string::npos)
@@ -1108,11 +1007,9 @@ int parsemonsters(Dungeon * dungeon) {
 						mo.color = BLACK;
 
 				} else if((n = line.find("DAM")) != std::string::npos) {
-					//save as a die
 					mo.s.a = getdie(line.substr(4, line.size()));
 
 				} else if((n = line.find("DESC")) != std::string::npos) {
-					//parse description
 					vector <std::string> desc;
 
 					while(getline(md, line)) {
@@ -1137,7 +1034,6 @@ int parsemonsters(Dungeon * dungeon) {
 					mo.s.s = getdie(line.substr(6, line.size()));
 
 				} else if((n = line.find("HP")) != std::string::npos) {
-					//health points
 					mo.s.hp = getdie(line.substr(3, line.size()));
 
 				} else if((n = line.find("END")) != std::string::npos) {
@@ -1158,7 +1054,6 @@ int parsemonsters(Dungeon * dungeon) {
 	int i = 0;
 	while(mons.size() > 0) {
 		SpriteTemp tmp = mons.back();
-		//printf("IN PARSE SYMBOL: %c\n", tmp.c);
 		dungeon->md[i] = tmp;
 		mons.pop_back();
 		i++;
@@ -1167,7 +1062,6 @@ int parsemonsters(Dungeon * dungeon) {
 	return 0;
 }
 
-/* parses the objects file in ~/.rlg327 */
 int parseitems(Dungeon * dungeon) {
 	char * env_path = getenv("HOME");
 	char * path = (char*)calloc(strlen(env_path) + 50, sizeof(char));
@@ -1186,7 +1080,6 @@ int parseitems(Dungeon * dungeon) {
 		ItemTemp b_it;
 		ItemTemp it;
 		while(getline(od, line)) {
-			//cout << line << '\n';
 
 			if(first) {
 				if(line != "RLG327 OBJECT DESCRIPTION 1") {
@@ -1195,7 +1088,6 @@ int parseitems(Dungeon * dungeon) {
 				}
 				first = false;
 			} else {
-				//standard file parsing
 				size_t n = 0;
 
 				if(line == "BEGIN OBJECT")
@@ -1205,7 +1097,6 @@ int parseitems(Dungeon * dungeon) {
 				else if((n = line.find("SYMB")) != std::string::npos)
 					it.s = (char)line.at(5);
 				else if((n = line.find("TYPE")) != std::string::npos) {
-					//line.find statements to match enums
 					if((n = line.find("WEAPON")) != std::string::npos)
 						it.t = WEAPON;
 					else if((n = line.find("OFFHAND")) != std::string::npos)
@@ -1247,7 +1138,6 @@ int parseitems(Dungeon * dungeon) {
 
 
 				} else if((n = line.find("COLOR")) != std::string::npos) {
-					//line.find statements to match enums/ints
 					if((n = line.find("RED")) != std::string::npos)
 						it.c = RED;
 					else if((n = line.find("GREEN")) != std::string::npos)
@@ -1284,7 +1174,6 @@ int parseitems(Dungeon * dungeon) {
 				else if((n = line.find("SPEED")) != std::string::npos) {
 					it.spb = getdie(line.substr(6, line.size()));
 				} else if((n = line.find("DESC")) != std::string::npos) {
-					//parse description
 					vector <std::string> desc;
 
 					while(getline(od, line)) {
@@ -1327,9 +1216,7 @@ int parseitems(Dungeon * dungeon) {
 		i++;
 	}
 
-	/*printf("SIZE: %d\n", di);
-	cout << "NAME: " << (dungeon->id)[0].n << endl;
-	cout << "DESC (0): " << dungeon->id[0].desc[0] << endl;*/
+	
 
 	return 0;
 }
@@ -1363,7 +1250,6 @@ void printmds(Dungeon * dungeon)
 		case BLACK: cout << "Color: BLACK" << endl; break;
 		}
 
-		//printf("Speed: %d\n", dungeon->md[i].s.s);
 		cout << "Speed: " << dungeon->md[i].s.s->string() << endl;
 
 		cout << "Abilities: ";
@@ -1379,7 +1265,6 @@ void printmds(Dungeon * dungeon)
 			cout << "PASS ";
 		cout << endl;
 
-		//printf("HP: %d\n", dungeon->md[i].s.hp);
 		cout << "HP: " << dungeon->md[i].s.hp->string() << endl;
 
 		cout << "Damage: " << dungeon->md[i].s.a->string() << endl;
@@ -1387,83 +1272,9 @@ void printmds(Dungeon * dungeon)
 		cout << endl;
 	}
 }
-/*
-void printids(Dungeon * dungeon)
-{
-	int i;
-	for(i = 0; i < dungeon->di; i++)
-	{
-		cout << "Name: " << dungeon->id[i].n << endl;
 
-		cout << "Description: " << endl;
-		int j;
-		for(j = 0; j < dungeon->id[i].dl; j++)
-		{
-			cout << dungeon->id[i].desc[j] << endl;
-		}
 
-		cout << "Type: ";
-		switch(dungeon->id[i].t)
-		{
-		case WEAPON: cout << "WEAPON"; break;
-		case OFFHAND: cout << "OFFHAND"; break;
-		case RANGED: cout << "RANGED"; break;
-		case ARMOR: cout << "ARMOR"; break;
-		case HELMET: cout << "HELMET"; break;
-		case CLOAK: cout << "CLOAK"; break;
-		case GLOVES: cout << "GLOVES"; break;
-		case BOOTS: cout << "BOOTS"; break;
-		case RING: cout << "RING"; break;
-		case AMULET: cout << "AMULET"; break;
-		case LIGHT: cout << "LIGHT"; break;
-		case SCROLL: cout << "SCROLL"; break;
-		case BOOK: cout << "BOOK"; break;
-		case FLASK: cout << "FLASK"; break;
-		case GOLD: cout << "GOLD"; break;
-		case AMMUNITION: cout << "AMMUNITION"; break;
-		case FOOD: cout << "FOOD"; break;
-		case WAND: cout << "WAND"; break;
-		case CONTAINER: cout << "CONTAINER"; break;
-		default: break;
-		}
-		cout << endl;
-
-		switch(dungeon->id[i].c)
-		{
-		case RED: cout << "Color: RED" << endl; break;
-		case GREEN: cout << "Color: GREEN" << endl; break;
-		case BLUE: cout << "Color: BLUE" << endl; break;
-		case CYAN: cout << "Color: CYAN" << endl; break;
-		case YELLOW: cout << "Color: YELLOW" << endl; break;
-		case MAGENTA: cout << "Color: MAGENTA" << endl; break;
-		case WHITE: cout << "Color: WHITE" << endl; break;
-		case BLACK: cout << "Color: BLACK" << endl; break;
-		}
-
-		printf("Hit bonus: %d\n", dungeon->id[i].hib);
-
-		cout << "Damage bonus: " << dungeon->id[i].d->string() << endl;
-
-		printf("Dodge bonus: %d\n", dungeon->id[i].dob);
-
-		printf("Defense bonus: %d\n", dungeon->id[i].deb);
-
-		printf("Weight: %d\n", dungeon->id[i].w);
-
-		printf("Speed bonus: %d\n", dungeon->id[i].spb);
-
-		printf("Special attribute: %d\n", dungeon->id[i].sa);
-
-		printf("Value in Pesos de Ocho: %d\n", dungeon->id[i].v);
-
-		cout << endl;
-	}
-}
-*/
-
-/* Basic procedural dungeon generator */
 int main(int argc, char * argv[]) {
-	/*** process commandline arguments ***/
 	int max_args = 8;
 	int saving = FALSE;
 	int loading = FALSE;
@@ -1472,29 +1283,21 @@ int main(int argc, char * argv[]) {
 	int num_mon = 1;
 	int custom_path = 0;
 	if(argc > 2 && argc <= max_args) {
-		/* both --save and --load */
 		int i;
 		for(i = 1; i < argc; i++) {
 			test_args(argc, argv, i, &saving, &loading, &pathing, &custom_path, &num_mon, &nnc);
 		}
 	} else if(argc == 2) {
-		/* one arg */
 		test_args(argc, argv, 1, &saving, &loading, &pathing, &custom_path, &num_mon, &nnc);
 	} else if(argc > max_args) {
-		/* more than 2 commandline arguments, argv[0] is gratuitous */
 		printf("Too many arguments!\n");
 	} else {
-		/* other; most likely 0 */
 	}
-	/*** end processing commandline arguments ***/
 
 
-	/* init the dungeon with default dungeon size and a max of 12 rooms */
 	srand(time(NULL));
 
-	/* create 2 char pointers so as not to pollute the original HOME variable */
 	char * env_path = getenv("HOME");
-	/* char * path = calloc(strlen(env_path) + 17, sizeof(char)); */
 	char * path = (char*)calloc(strlen(env_path) + 50, sizeof(char));
 	strcpy(path, env_path);
 	strcat(path, "/.rlg327");
@@ -1506,12 +1309,10 @@ int main(int argc, char * argv[]) {
 	}
 
 
-	/* persistent player character */
 	Bool regen = FALSE;
 	Sprite * p_pc = initSprite();
 	PC * p_ppc = new PC;
 
-	/*** dungeon generation starts here ***/
 	DUNGEN: ;
 
 	Dungeon dungeon = init_dungeon(21, 80, 12);
@@ -1520,8 +1321,7 @@ int main(int argc, char * argv[]) {
 	parseitems(&dungeon);
 	dungeon.of = new ObjFac(dungeon.di, dungeon.id);
 	dungeon.mf = new MonFac(dungeon.dm, dungeon.md);
-	//printmds(&dungeon);
-	//getchar();
+	
 
 	if(loading == FALSE) {
 		gen_dungeon(&dungeon);
@@ -1529,7 +1329,6 @@ int main(int argc, char * argv[]) {
 	} else {
 		read_dungeon(&dungeon, path);
 	}
-	/*** dungeon is fully initiated ***/
 	Sprite * pc = gen_sprite_fac(&dungeon, '@', -1, -1, 1);
 	add_sprite(&dungeon, pc);
 
@@ -1540,7 +1339,6 @@ int main(int argc, char * argv[]) {
 		setSpriteSn(m, i);
 		add_sprite(&dungeon, m);
 	}
-	/* 10 as per assignment1.08 */
 	for(i = 0; i < 10; i++) {
 		Item it = dungeon.of->GetObj();
 		placeitem(&dungeon, it);
@@ -1548,10 +1346,7 @@ int main(int argc, char * argv[]) {
 
 	map_dungeon_nont(&dungeon);
 	map_dungeon_t(&dungeon);
-	/*** dungeon is fully generated ***/
-	//getchar();
-
-	/* main loop */
+	
 
 	if(regen == TRUE) {
 		int px = getSpriteAPX(dungeon.ss, 0);
@@ -1567,14 +1362,12 @@ int main(int argc, char * argv[]) {
 
 	for(i = 1; i < dungeon.ns; i++) {
 		gen_move_sprite(&dungeon, i);
-		//nexts[i] = next;
 	}
 
 	if(regen == TRUE)
 		goto PNC;
 
 
-	/* ncurses or not ;; this will likely amount to nothing */
 	void (*printer)(Dungeon*, int, int);
 	if(nnc == FALSE) {
 		printer = &print_dungeon;
@@ -1628,12 +1421,7 @@ int main(int argc, char * argv[]) {
 		}
 
 
-		//print_dungeon(&dungeon, 1, 0); /* prints non-tunneling dijkstra's */
-		//print_dungeon(&dungeon, 0, 1); /* prints tunneling dijkstra's */
-
-
-		/** --- game over sequence checking --- **/
-		/* note: this will stop the game before the new world gets drawn since the monster will move to the player and thus kill him */
+		
 		if(dungeon.go == TRUE || dungeon.ss[0].a == FALSE)
 			break;
 
@@ -1645,9 +1433,7 @@ int main(int argc, char * argv[]) {
 		first = FALSE;
 	}
 	printer(&dungeon, 0, 0);
-	//printf("Game Over!\n");
 
-	/*** tear down sequence ***/
 	END: ;
 	delwin(stdscr);
 	endwin();
@@ -1657,7 +1443,6 @@ int main(int argc, char * argv[]) {
 	}
 
 	DUNFREE: ;
-	/* cpp stuff */
 	delete[] dungeon.items;
 
 	delete[] dungeon.md;
@@ -1666,7 +1451,6 @@ int main(int argc, char * argv[]) {
 	delete dungeon.su;
 	delete dungeon.sd;
 
-	/* free our arrays */
 	for(i = 0; i < dungeon.h; i++) {
 		free(dungeon.d[i]);
 	}
